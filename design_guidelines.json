@@ -1,0 +1,105 @@
+{
+  "project_name": "Team Task Manager",
+  "theme_and_archetype": {
+    "theme": "DARK (Default) / LIGHT (Toggle)",
+    "archetype": "Archetype 4 (Swiss & High-Contrast)",
+    "vibe": "Authority, clarity, function-first, and technical precision. Inspired by Godly dark-mode apps like Linear and GitHub."
+  },
+  "colors": {
+    "description": "High contrast, sharp neutrals. Not pure black, but deep tinted grays (#0A0A0A) combined with saturated accents for statuses.",
+    "tailwind_vars": {
+      "light": {
+        "background": "0 0% 98%",
+        "foreground": "0 0% 9%",
+        "card": "0 0% 100%",
+        "card_foreground": "0 0% 9%",
+        "primary": "221 83% 53%",
+        "primary_foreground": "210 40% 98%",
+        "muted": "210 40% 96.1%",
+        "muted_foreground": "215.4 16.3% 46.9%",
+        "border": "214.3 31.8% 91.4%"
+      },
+      "dark": {
+        "background": "0 0% 4%",
+        "foreground": "0 0% 93%",
+        "card": "0 0% 7%",
+        "card_foreground": "0 0% 93%",
+        "primary": "221 83% 53%",
+        "primary_foreground": "210 40% 98%",
+        "muted": "0 0% 12%",
+        "muted_foreground": "0 0% 63%",
+        "border": "0 0% 15%"
+      }
+    },
+    "status_colors": {
+      "overdue": "bg-red-500/10 text-red-500 border border-red-500/20",
+      "in_progress": "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+      "completed": "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+    }
+  },
+  "typography": {
+    "rules": "The Anti-Default Rule applies. Do NOT use Inter, Roboto, Open Sans, Lato, or Syne for Headings. BANNED: Space Grotesk.",
+    "fonts": {
+      "headings": "Work Sans",
+      "body": "IBM Plex Sans"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-bold tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-medium",
+      "h4": "text-lg sm:text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "small_labels": "text-xs uppercase tracking-[0.2em] font-semibold"
+    }
+  },
+  "spacing_and_layout": {
+    "grid_system": "The Control Room Grid. Base Grid: grid-cols-1 md:grid-cols-3 lg:grid-cols-4. Tight gap strategy (gap-4 or gap-6).",
+    "padding": "Generous Spacing Philosophy. Use p-6 or p-8 inside cards. No text collision.",
+    "alignment": "F-Pattern layout for dashboard. Left sidebar for navigation, top-left for primary North Star Metric.",
+    "radius": "Subtle roundness, max 8px border-radius (rounded-md or rounded-lg). No pill-shaped buttons unless explicitly required for small tags."
+  },
+  "surface_strategies": {
+    "dashboard_cards": "Grid Borders (The Technical Look). Flat backgrounds, 1px subtle border (border-border), no shadow. On hover: slight lift (-translate-y-1) and subtle shadow.",
+    "auth_page": "Crystal Glassmorphism over the 3D abstract background. bg-black/60 (Dark Mode) or bg-white/70 (Light Mode) with backdrop-blur-xl and backdrop-saturate-150. Mandatory 1px inner stroke (border-white/10).",
+    "header": "Solid Background with a hard bottom border (border-b border-border) to define space clearly."
+  },
+  "components_instructions": {
+    "navigation": "Responsive sidebar navigation (collapsible). F-Pattern layout. Must be visible on desktop.",
+    "kanban_board": "Framer-motion or robust drag-and-drop library. Dense cards but visually clean. Columns: Todo, In Progress, Review, Done. Overdue tasks must use red indicator.",
+    "modals_dialogs": "Use Shadcn Dialog. Heavy customize with the 'Control Room' dense aesthetic.",
+    "charts": "Use Recharts (integrated via Shadcn). Colors must match the high-contrast archetype palette. Transparent tooltips with 1px borders.",
+    "icons": "Use Phosphor Icons (@phosphor-icons/react) for dense dashboards and developer tools."
+  },
+  "animations_and_motion": {
+    "hover_states": "ALWAYS explicitly set text color on hover. E.g., hover:bg-white/10 hover:text-white. Hover state color must be a lighter hue of ACTIVE state color.",
+    "transitions": "Use specific properties, NOT transition-all. e.g., transition-colors duration-200 ease-in-out.",
+    "accessibility": "Respect prefers-reduced-motion."
+  },
+  "media": {
+    "auth_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/1909a152-48a4-40d9-9502-a49c6af122f2/images/25885a7bf3ecbcf77e892e75e631df60696ddfe8a713939e3566f4d903d0386d.png",
+      "description": "High-end 3D abstract geometric shapes, dark moody environment. Use as full-screen cover on the login/signup page with a glassmorphism card on top."
+    },
+    "avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBhdmF0YXIlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHx8MTc3ODc3ODYyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Male avatar 1 - Use for team members / assignee UI."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBhdmF0YXIlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHx8MTc3ODc3ODYyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Male avatar 2 - Use for team members / assignee UI."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBhdmF0YXIlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHx8MTc3ODc3ODYyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Female avatar 1 - Use for team members / assignee UI."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBhdmF0YXIlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHx8MTc3ODc3ODYyM3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Male avatar 3 - Use for team members / assignee UI."
+      }
+    ]
+  },
+  "testing": {
+    "attributes": "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='login-form-submit-button')."
+  }
+}
