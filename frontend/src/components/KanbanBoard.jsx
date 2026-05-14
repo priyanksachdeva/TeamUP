@@ -22,8 +22,8 @@ function TaskCard({ task, userMap, onEdit, onDelete, canManage, dragging }) {
   const assignee = userMap[task.assigned_to];
   return (
     <div
-      className={`group rounded-lg border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
-        overdue ? "border-red-500/40" : "border-border"
+      className={`group rounded-2xl border bg-card p-4 card-soft transition-all duration-200 hover:-translate-y-0.5 ${
+        overdue ? "border-rose-500/40" : "border-border"
       } ${dragging ? "opacity-50" : ""}`}
       data-testid={`task-card-${task.id}`}
     >
@@ -100,15 +100,18 @@ function Column({ column, tasks, ...rest }) {
     <div
       ref={setNodeRef}
       data-testid={`kanban-column-${column.id}`}
-      className={`flex h-full min-h-[60vh] flex-col rounded-xl border bg-muted/30 p-3 transition-colors ${
+      className={`flex h-full min-h-[60vh] flex-col rounded-2xl border bg-muted/40 p-4 transition-colors ${
         isOver ? "border-primary/40 bg-primary/5" : "border-border"
       }`}
     >
-      <div className="mb-3 flex items-center justify-between px-1">
+      <div className="mb-4 flex items-center justify-between px-1">
         <div>
           <div className="flex items-center gap-2 font-display text-sm font-semibold">
+            <span className={`inline-block h-2 w-2 rounded-full ${
+              column.id === "todo" ? "bg-zinc-400" : column.id === "in_progress" ? "bg-sky-500" : "bg-primary"
+            }`} />
             {column.title}
-            <span className="rounded bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            <span className="rounded-full bg-background px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
               {tasks.length}
             </span>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Hexagon, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -54,15 +54,13 @@ export default function Login() {
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="mb-6 flex items-center justify-center gap-2 text-foreground">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_24px_-6px_hsl(244_76%_59%/0.55)]">
+              <Hexagon className="h-5 w-5" strokeWidth={2.5} />
             </div>
-            <span className="font-display text-xl font-semibold tracking-tight">
-              Linear<span className="text-primary">Tasks</span>
-            </span>
+            <span className="font-display text-2xl font-bold tracking-tight">OCTOM.</span>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-card/70 p-7 shadow-2xl backdrop-blur-xl backdrop-saturate-150">
+          <div className="rounded-3xl border border-white/20 bg-card/80 p-7 card-soft backdrop-blur-xl backdrop-saturate-150">
             <div className="mb-6">
               <div className="eyebrow mb-2">Sign in</div>
               <h1 className="font-display text-3xl font-semibold tracking-tight">Welcome back</h1>
@@ -113,7 +111,7 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 data-testid="login-submit-button"
-                className="w-full gap-2"
+                className="h-11 w-full gap-2 rounded-full shadow-[0_8px_24px_-6px_hsl(244_76%_59%/0.55)]"
               >
                 {loading ? "Signing in..." : "Sign in"}
                 <ArrowRight className="h-4 w-4" />
@@ -132,7 +130,7 @@ export default function Login() {
                 variant="outline"
                 onClick={() => fillDemo("admin")}
                 data-testid="login-demo-admin"
-                className="font-mono text-xs"
+                className="rounded-full font-mono text-xs"
               >
                 Admin demo
               </Button>
@@ -141,7 +139,7 @@ export default function Login() {
                 variant="outline"
                 onClick={() => fillDemo("member")}
                 data-testid="login-demo-member"
-                className="font-mono text-xs"
+                className="rounded-full font-mono text-xs"
               >
                 Member demo
               </Button>

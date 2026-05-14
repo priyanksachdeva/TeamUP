@@ -57,7 +57,7 @@ export default function Members() {
             <Card
               key={u.id}
               data-testid={`member-card-${u.id}`}
-              className="transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              className="card-soft rounded-2xl transition-transform duration-200 hover:-translate-y-0.5"
             >
               <CardContent className="flex items-center gap-4 p-5">
                 <UserAvatar user={u} size="lg" />

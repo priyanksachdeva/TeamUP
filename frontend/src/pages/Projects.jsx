@@ -85,7 +85,7 @@ export default function Projects() {
           {isAdmin && (
             <Button
               onClick={() => { setEditing(null); setDialogOpen(true); }}
-              className="gap-1.5"
+              className="gap-1.5 rounded-full"
               data-testid="projects-new-button"
             >
               <Plus className="h-4 w-4" /> New project
@@ -118,7 +118,7 @@ export default function Projects() {
           {filtered.map((p) => (
             <Card
               key={p.id}
-              className="group cursor-pointer transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              className="card-soft group cursor-pointer rounded-2xl transition-transform duration-200 hover:-translate-y-0.5"
               data-testid={`project-card-${p.id}`}
               onClick={(e) => {
                 if (e.target.closest('[data-no-card-nav]')) return;
