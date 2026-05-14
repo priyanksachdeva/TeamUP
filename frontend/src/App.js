@@ -12,6 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Members from "./pages/Members";
+import MyTasks from "./pages/MyTasks";
+import CommandPalette from "./components/CommandPalette";
 
 function App() {
   return (
@@ -31,11 +33,13 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/my-tasks" element={<MyTasks />} />
               <Route path="/members" element={<Members />} />
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+          <CommandPalette />
         </BrowserRouter>
         <Toaster
           position="top-right"

@@ -39,6 +39,8 @@ function TaskCard({ task, userMap, onEdit, onDelete, canManage, dragging }) {
             <DropdownMenuTrigger asChild>
               <button
                 onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                data-no-card-click
                 className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-accent group-hover:opacity-100"
                 data-testid={`task-menu-${task.id}`}
               >
@@ -85,10 +87,20 @@ function TaskCard({ task, userMap, onEdit, onDelete, canManage, dragging }) {
   );
 }
 
-function DraggableTask({ task, ...rest }) {
+function DraggableTask({ task, onOpen, ...rest }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} className="touch-none">
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onClick={(e) => {
+        // ignore clicks coming from the dropdown menu
+        if (e.target.closest("[data-no-card-click]")) return;
+        if (!isDragging) onOpen?.(task);
+      }}
+      className="touch-none cursor-pointer"
+    >
       <TaskCard task={task} dragging={isDragging} {...rest} />
     </div>
   );
@@ -132,7 +144,7 @@ function Column({ column, tasks, ...rest }) {
   );
 }
 
-export default function KanbanBoard({ tasks, users, onStatusChange, onEdit, onDelete, canManage }) {
+export default function KanbanBoard({ tasks, users, onStatusChange, onEdit, onDelete, onOpen, canManage }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const [activeId, setActiveId] = useState(null);
   const userMap = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
@@ -170,6 +182,7 @@ export default function KanbanBoard({ tasks, users, onStatusChange, onEdit, onDe
             userMap={userMap}
             onEdit={onEdit}
             onDelete={onDelete}
+            onOpen={onOpen}
             canManage={canManage}
           />
         ))}

@@ -24,6 +24,7 @@ from routes_projects import router as projects_router
 from routes_tasks import router as tasks_router
 from routes_users import router as users_router
 from routes_dashboard import router as dashboard_router
+from routes_comments import router as comments_router
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("server")
@@ -34,6 +35,7 @@ async def _ensure_indexes(db):
     await db.projects.create_index("created_by")
     await db.tasks.create_index("project_id")
     await db.tasks.create_index("assigned_to")
+    await db.comments.create_index("task_id")
 
 
 async def _seed_user(db, *, email_env: str, password_env: str, default_email: str, default_password: str, name: str, role: str):
@@ -106,6 +108,7 @@ api_router.include_router(projects_router)
 api_router.include_router(tasks_router)
 api_router.include_router(users_router)
 api_router.include_router(dashboard_router)
+api_router.include_router(comments_router)
 
 app.include_router(api_router)
 

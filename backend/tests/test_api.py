@@ -302,3 +302,157 @@ class TestDashboard:
         r = requests.get(f"{API}/dashboard/recent", headers=admin_h(admin_token), timeout=15)
         assert r.status_code == 200
         assert isinstance(r.json(), list)
+
+
+# ---------- Comments (new in iteration 2) ----------
+class TestComments:
+    @pytest.fixture(scope="class")
+    def task_ctx(self, admin_token, member_token):
+        me_m = requests.get(f"{API}/auth/me", headers=admin_h(member_token), timeout=15).json()
+        member_id = me_m["id"]
+        # project with member
+        pr = requests.post(
+            f"{API}/projects",
+            headers=admin_h(admin_token),
+            json={"title": "TEST_comments_proj", "members": [member_id]},
+            timeout=15,
+        )
+        assert pr.status_code == 200, pr.text
+        pid = pr.json()["id"]
+        # second project WITHOUT member (for forbidden check)
+        pr2 = requests.post(
+            f"{API}/projects",
+            headers=admin_h(admin_token),
+            json={"title": "TEST_comments_proj_private", "members": []},
+            timeout=15,
+        )
+        assert pr2.status_code == 200
+        pid2 = pr2.json()["id"]
+        # task in project 1 (member has access)
+        tr = requests.post(
+            f"{API}/tasks",
+            headers=admin_h(admin_token),
+            json={"title": "TEST_c_task", "project_id": pid},
+            timeout=15,
+        )
+        assert tr.status_code == 200
+        tid = tr.json()["id"]
+        # task in project 2 (member has NO access)
+        tr2 = requests.post(
+            f"{API}/tasks",
+            headers=admin_h(admin_token),
+            json={"title": "TEST_c_task_private", "project_id": pid2},
+            timeout=15,
+        )
+        assert tr2.status_code == 200
+        tid_private = tr2.json()["id"]
+        yield {"pid": pid, "tid": tid, "tid_private": tid_private, "member_id": member_id}
+        # cleanup
+        requests.delete(f"{API}/projects/{pid}", headers=admin_h(admin_token), timeout=15)
+        requests.delete(f"{API}/projects/{pid2}", headers=admin_h(admin_token), timeout=15)
+
+    def test_list_comments_requires_auth(self, task_ctx):
+        r = requests.get(f"{API}/tasks/{task_ctx['tid']}/comments", timeout=15)
+        assert r.status_code == 401
+
+    def test_list_comments_invalid_task(self, admin_token):
+        r = requests.get(
+            f"{API}/tasks/does-not-exist/comments",
+            headers=admin_h(admin_token),
+            timeout=15,
+        )
+        assert r.status_code == 404
+
+    def test_member_cannot_access_non_member_task_comments(self, member_token, task_ctx):
+        r = requests.get(
+            f"{API}/tasks/{task_ctx['tid_private']}/comments",
+            headers=admin_h(member_token),
+            timeout=15,
+        )
+        assert r.status_code == 403
+
+    def test_admin_create_comment(self, admin_token, task_ctx):
+        r = requests.post(
+            f"{API}/tasks/{task_ctx['tid']}/comments",
+            headers=admin_h(admin_token),
+            json={"body": "hello from admin"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["body"] == "hello from admin"
+        assert body["user_name"] == "Demo Admin"
+        assert body["task_id"] == task_ctx["tid"]
+        assert "id" in body
+        task_ctx["admin_comment_id"] = body["id"]
+
+    def test_member_create_comment(self, member_token, task_ctx):
+        r = requests.post(
+            f"{API}/tasks/{task_ctx['tid']}/comments",
+            headers=admin_h(member_token),
+            json={"body": "hi from member"},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["user_name"] == "Demo Member"
+        task_ctx["member_comment_id"] = body["id"]
+
+    def test_list_comments_ordered(self, admin_token, task_ctx):
+        r = requests.get(
+            f"{API}/tasks/{task_ctx['tid']}/comments",
+            headers=admin_h(admin_token),
+            timeout=15,
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert len(data) >= 2
+        bodies = [c["body"] for c in data]
+        assert "hello from admin" in bodies
+        assert "hi from member" in bodies
+
+    def test_member_cannot_delete_admin_comment(self, member_token, task_ctx):
+        r = requests.delete(
+            f"{API}/comments/{task_ctx['admin_comment_id']}",
+            headers=admin_h(member_token),
+            timeout=15,
+        )
+        assert r.status_code == 403
+
+    def test_member_can_delete_own_comment(self, member_token, task_ctx):
+        r = requests.delete(
+            f"{API}/comments/{task_ctx['member_comment_id']}",
+            headers=admin_h(member_token),
+            timeout=15,
+        )
+        assert r.status_code == 200
+
+    def test_admin_can_delete_any_comment(self, admin_token, task_ctx):
+        r = requests.delete(
+            f"{API}/comments/{task_ctx['admin_comment_id']}",
+            headers=admin_h(admin_token),
+            timeout=15,
+        )
+        assert r.status_code == 200
+        # verify gone: list again, should not contain
+        l = requests.get(
+            f"{API}/tasks/{task_ctx['tid']}/comments",
+            headers=admin_h(admin_token),
+            timeout=15,
+        )
+        assert l.status_code == 200
+        ids = [c["id"] for c in l.json()]
+        assert task_ctx["admin_comment_id"] not in ids
+
+    def test_delete_nonexistent_comment(self, admin_token):
+        r = requests.delete(f"{API}/comments/nope-{uuid.uuid4().hex}", headers=admin_h(admin_token), timeout=15)
+        assert r.status_code == 404
+
+    def test_empty_body_rejected(self, admin_token, task_ctx):
+        r = requests.post(
+            f"{API}/tasks/{task_ctx['tid']}/comments",
+            headers=admin_h(admin_token),
+            json={"body": ""},
+            timeout=15,
+        )
+        assert r.status_code == 422

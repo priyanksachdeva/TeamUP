@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  LayoutDashboard, FolderKanban, Users, LogOut, Moon, Sun, Bell, Search, Hexagon,
+  LayoutDashboard, FolderKanban, Users, LogOut, Moon, Sun, Bell, Search, Hexagon, ListChecks,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/my-tasks", label: "My tasks", icon: ListChecks },
   { to: "/members", label: "Team", icon: Users },
 ];
 
@@ -105,10 +106,18 @@ export default function Layout() {
             <div className="relative w-full max-w-md">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
+                readOnly
                 placeholder="Search anything…"
-                className="h-11 rounded-full border-border bg-card pl-11 pr-4 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-primary/30"
+                onClick={() => {
+                  const ev = new KeyboardEvent("keydown", { key: "k", metaKey: true });
+                  window.dispatchEvent(ev);
+                }}
+                className="h-11 cursor-pointer rounded-full border-border bg-card pl-11 pr-16 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-primary/30"
                 data-testid="global-search"
               />
+              <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline-flex">
+                ⌘K
+              </kbd>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -130,7 +139,7 @@ export default function Layout() {
         </header>
 
         {/* mobile bottom nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-3 gap-1 border-t border-border bg-card/95 p-2 backdrop-blur">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 gap-1 border-t border-border bg-card/95 p-2 backdrop-blur">
           {NAV.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

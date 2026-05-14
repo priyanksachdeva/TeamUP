@@ -99,3 +99,18 @@ class TaskOut(BaseModel):
     created_by: str
     created_at: datetime
     updated_at: datetime
+
+
+# ---------- Comments ----------
+class CommentCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=2000)
+
+
+class CommentOut(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    task_id: str
+    user_id: str
+    user_name: str
+    body: str
+    created_at: datetime

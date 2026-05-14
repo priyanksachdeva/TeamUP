@@ -16,6 +16,7 @@ import UserAvatar from "../components/UserAvatar";
 import KanbanBoard from "../components/KanbanBoard";
 import TaskDialog from "../components/TaskDialog";
 import ProjectDialog from "../components/ProjectDialog";
+import TaskDetailDrawer from "../components/TaskDetailDrawer";
 import { formatDate } from "../lib/taskHelpers";
 
 export default function ProjectDetail() {
@@ -32,6 +33,8 @@ export default function ProjectDetail() {
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
   const [projectDialog, setProjectDialog] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTaskId, setDrawerTaskId] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -165,7 +168,20 @@ export default function ProjectDetail() {
         onStatusChange={onStatusChange}
         onEdit={(t) => { setEditingTask(t); setTaskDialog(true); }}
         onDelete={(t) => setDeletingTask(t)}
+        onOpen={(t) => { setDrawerTaskId(t.id); setDrawerOpen(true); }}
         canManage={isAdmin}
+      />
+
+      <TaskDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        taskId={drawerTaskId}
+        users={users}
+        currentUser={user}
+        isAdmin={isAdmin}
+        onTaskUpdated={(t) => setTasks((all) => all.map((x) => (x.id === t.id ? t : x)))}
+        onTaskDeleted={(tid) => setTasks((all) => all.filter((x) => x.id !== tid))}
+        onEditFull={(t) => { setEditingTask(t); setTaskDialog(true); }}
       />
 
       <TaskDialog
