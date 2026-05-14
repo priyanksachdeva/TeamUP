@@ -118,8 +118,12 @@ export default function Projects() {
           {filtered.map((p) => (
             <Card
               key={p.id}
-              className="group transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              className="group cursor-pointer transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
               data-testid={`project-card-${p.id}`}
+              onClick={(e) => {
+                if (e.target.closest('[data-no-card-nav]')) return;
+                window.location.href = `/projects/${p.id}`;
+              }}
             >
               <CardContent className="flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-2">
@@ -137,11 +141,11 @@ export default function Projects() {
                   {isAdmin && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" data-testid={`project-menu-${p.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" data-testid={`project-menu-${p.id}`} data-no-card-nav onClick={(e) => e.stopPropagation()}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" data-no-card-nav onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem onClick={() => { setEditing(p); setDialogOpen(true); }}>
                           <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
                         </DropdownMenuItem>
