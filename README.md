@@ -33,6 +33,8 @@ npm install
 npm start
 ```
 
+Production deploy note: on Railway the frontend must serve the built app, not `npm start`. Use `frontend` root, `npm run build`, and `npm run railway-start`.
+
 Environment variables (backend)
 
 Copy `backend/.env.example` to `backend/.env` and fill in real values. Key variables:

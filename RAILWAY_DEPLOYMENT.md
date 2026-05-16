@@ -216,6 +216,8 @@ The backend already exposes a simple healthy response there.
 
 ## Service B: Frontend UI
 
+Important: do not use `npm start` on Railway. That runs the CRA/CRACO development server and is a common cause of the 502 "Application failed to respond" error in production.
+
 ### Root directory
 
 `frontend`
@@ -234,7 +236,7 @@ If Railway uses the lockfile automatically, that is fine too. This repo has `fro
 ### Start command
 
 ```bash
-npx serve -s build -l $PORT
+npm run railway-start
 ```
 
 If you prefer to keep the build output truly static, you can also deploy it as a Railway static site if your Railway project type supports that workflow. The above command works reliably in a normal service.
@@ -317,7 +319,8 @@ Keep that value for the frontend build.
 
 1. Add another service from the same repo
 2. Set the root directory to `frontend`
-3. Set the build/start commands above
+3. Set the build command to `npm run build`
+4. Set the start command to `npm run railway-start`
 4. Set `REACT_APP_BACKEND_URL` to the backend URL from Step 4
 
 Rebuild after setting the variable.
