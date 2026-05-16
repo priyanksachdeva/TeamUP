@@ -6,8 +6,14 @@ import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "../components/ui/alert-dialog";
 import { toast } from "sonner";
 import api, { formatApiError } from "../services/api";
@@ -17,6 +23,7 @@ import KanbanBoard from "../components/KanbanBoard";
 import TaskDialog from "../components/TaskDialog";
 import ProjectDialog from "../components/ProjectDialog";
 import TaskDetailDrawer from "../components/TaskDetailDrawer";
+import { subtaskAPI, reorderAPI } from "../services/subtasks";
 import { formatDate } from "../lib/taskHelpers";
 
 export default function ProjectDetail() {
@@ -25,6 +32,7 @@ export default function ProjectDetail() {
   const isAdmin = user?.role === "admin";
 
   const [project, setProject] = useState(null);
+  const isCreator = project?.created_by === user?.id;
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,20 +62,174 @@ export default function ProjectDetail() {
     }
   }, [id]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const members = useMemo(
     () => users.filter((u) => (project?.members || []).includes(u.id)),
-    [users, project]
+    [users, project],
   );
+
+  const canManageProject = isAdmin || isCreator;
 
   const onStatusChange = async (task, newStatus) => {
     const previous = tasks;
-    setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t)));
+    setTasks((ts) =>
+      ts.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t)),
+    );
     try {
       await api.patch(`/tasks/${task.id}/status`, { status: newStatus });
     } catch (err) {
       setTasks(previous);
+      toast.error(formatApiError(err));
+    }
+  };
+
+  const onTitleChange = async (taskId, newTitle) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task || task.title === newTitle) return;
+
+    const previousTasks = JSON.parse(JSON.stringify(tasks));
+    setTasks((ts) =>
+      ts.map((t) => (t.id === taskId ? { ...t, title: newTitle } : t)),
+    );
+    try {
+      await api.patch(`/tasks/${taskId}`, { title: newTitle });
+      toast.success("Task title updated");
+    } catch (err) {
+      setTasks(previousTasks);
+      toast.error(formatApiError(err));
+    }
+  };
+
+  const onSubtaskAdd = async (taskId, title) => {
+    const previousTasks = JSON.parse(JSON.stringify(tasks));
+    try {
+      const newSubtask = await subtaskAPI.create(taskId, title);
+      setTasks((ts) =>
+        ts.map((t) => {
+          if (t.id === taskId) {
+            return { ...t, subtasks: [...(t.subtasks || []), newSubtask] };
+          }
+          return t;
+        }),
+      );
+      toast.success("Subtask added");
+    } catch (err) {
+      setTasks(previousTasks);
+      toast.error(formatApiError(err));
+    }
+  };
+
+  const onSubtaskToggle = async (taskId, subtaskId) => {
+    const previousTasks = JSON.parse(JSON.stringify(tasks));
+    try {
+      const task = tasks.find((t) => t.id === taskId);
+      const subtask = task?.subtasks?.find((s) => s.id === subtaskId);
+      if (!subtask) {
+        toast.error("Subtask not found");
+        return;
+      }
+
+      // Optimistic update
+      setTasks((ts) =>
+        ts.map((t) => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              subtasks: (t.subtasks || []).map((s) =>
+                s.id === subtaskId ? { ...s, completed: !s.completed } : s,
+              ),
+            };
+          }
+          return t;
+        }),
+      );
+
+      const updated = await subtaskAPI.update(taskId, subtaskId, {
+        completed: !subtask.completed,
+      });
+
+      setTasks((ts) =>
+        ts.map((t) => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              subtasks: (t.subtasks || []).map((s) =>
+                s.id === subtaskId ? updated : s,
+              ),
+            };
+          }
+          return t;
+        }),
+      );
+    } catch (err) {
+      setTasks(previousTasks);
+      toast.error(formatApiError(err));
+    }
+  };
+
+  const onSubtaskDelete = async (taskId, subtaskId) => {
+    const previousTasks = JSON.parse(JSON.stringify(tasks));
+    try {
+      setTasks((ts) =>
+        ts.map((t) => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              subtasks: (t.subtasks || []).filter((s) => s.id !== subtaskId),
+            };
+          }
+          return t;
+        }),
+      );
+
+      await subtaskAPI.delete(taskId, subtaskId);
+      toast.success("Subtask deleted");
+    } catch (err) {
+      setTasks(previousTasks);
+      toast.error(formatApiError(err));
+    }
+  };
+
+  const onReorder = async (taskId, newPosition) => {
+    const previousTasks = JSON.parse(JSON.stringify(tasks));
+    try {
+      // Verify task exists
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) {
+        toast.error("Task not found");
+        return;
+      }
+
+      // Optimistic update: reorder tasks locally
+      const taskStatus = task.status;
+      const tasksInColumn = tasks
+        .filter((t) => t.status === taskStatus)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      const currentIndex = tasksInColumn.findIndex((t) => t.id === taskId);
+      const newTasks = tasksInColumn.filter((t) => t.id !== taskId);
+      newTasks.splice(newPosition, 0, task);
+
+      // Apply optimistic update
+      setTasks((ts) => {
+        const updated = [...ts];
+        newTasks.forEach((t, idx) => {
+          const idx_in_ts = updated.findIndex((x) => x.id === t.id);
+          if (idx_in_ts >= 0)
+            updated[idx_in_ts] = { ...updated[idx_in_ts], order: idx };
+        });
+        return updated;
+      });
+
+      // Call API to confirm reorder
+      await reorderAPI.reorder(taskId, newPosition);
+      // Refresh all tasks to sync orders across all affected tasks
+      await load();
+      toast.success("Task reordered");
+    } catch (err) {
+      setTasks(previousTasks);
       toast.error(formatApiError(err));
     }
   };
@@ -114,24 +276,35 @@ export default function ProjectDetail() {
             {project.title}
           </h1>
           {project.description && (
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{project.description}</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              {project.description}
+            </p>
           )}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline" className="font-mono">Created {formatDate(project.created_at)}</Badge>
+            <Badge variant="outline" className="font-mono">
+              Created {formatDate(project.created_at)}
+            </Badge>
             <span className="inline-flex items-center gap-1">
               <UsersIcon className="h-3 w-3" /> {members.length} members
             </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isAdmin && (
-            <Button variant="outline" onClick={() => setProjectDialog(true)} data-testid="edit-project-button">
+          {(isAdmin || isCreator) && (
+            <Button
+              variant="outline"
+              onClick={() => setProjectDialog(true)}
+              data-testid="edit-project-button"
+            >
               <Pencil className="mr-1.5 h-4 w-4" /> Edit project
             </Button>
           )}
-          {isAdmin && (
+          {(isAdmin || (project?.members || []).includes(user?.id)) && (
             <Button
-              onClick={() => { setEditingTask(null); setTaskDialog(true); }}
+              onClick={() => {
+                setEditingTask(null);
+                setTaskDialog(true);
+              }}
               data-testid="new-task-button"
               className="gap-1.5"
             >
@@ -145,7 +318,9 @@ export default function ProjectDetail() {
         <CardContent className="flex flex-wrap items-center gap-3 p-4">
           <div className="eyebrow mr-2">Team</div>
           {members.length === 0 && (
-            <span className="text-xs text-muted-foreground">No members assigned.</span>
+            <span className="text-xs text-muted-foreground">
+              No members assigned.
+            </span>
           )}
           <div className="flex flex-wrap gap-2">
             {members.map((m) => (
@@ -155,7 +330,28 @@ export default function ProjectDetail() {
               >
                 <UserAvatar user={m} size="xs" />
                 <span className="text-xs">{m.name}</span>
-                <Badge variant="outline" className="font-mono text-[9px]">{m.role}</Badge>
+                <Badge variant="outline" className="font-mono text-[9px]">
+                  {m.role}
+                </Badge>
+                {canManageProject && m.id !== project?.created_by && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.delete(
+                          `/projects/${project.id}/members/${m.id}`,
+                        );
+                        toast.success("Member removed");
+                        load();
+                      } catch (err) {
+                        toast.error(formatApiError(err));
+                      }
+                    }}
+                    className="ml-2 text-xs text-red-500"
+                    data-testid={`remove-member-${m.id}`}
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -166,10 +362,23 @@ export default function ProjectDetail() {
         tasks={tasks}
         users={users}
         onStatusChange={onStatusChange}
-        onEdit={(t) => { setEditingTask(t); setTaskDialog(true); }}
+        onEdit={(t) => {
+          setEditingTask(t);
+          setTaskDialog(true);
+        }}
         onDelete={(t) => setDeletingTask(t)}
-        onOpen={(t) => { setDrawerTaskId(t.id); setDrawerOpen(true); }}
-        canManage={isAdmin}
+        onTitleChange={onTitleChange}
+        onSubtaskAdd={onSubtaskAdd}
+        onSubtaskToggle={onSubtaskToggle}
+        onSubtaskDelete={onSubtaskDelete}
+        onReorder={onReorder}
+        onOpen={(t) => {
+          setDrawerTaskId(t.id);
+          setDrawerOpen(true);
+        }}
+        canManage={
+          isAdmin || (project?.members || []).includes(user?.id) || isCreator
+        }
       />
 
       <TaskDetailDrawer
@@ -179,9 +388,16 @@ export default function ProjectDetail() {
         users={users}
         currentUser={user}
         isAdmin={isAdmin}
-        onTaskUpdated={(t) => setTasks((all) => all.map((x) => (x.id === t.id ? t : x)))}
-        onTaskDeleted={(tid) => setTasks((all) => all.filter((x) => x.id !== tid))}
-        onEditFull={(t) => { setEditingTask(t); setTaskDialog(true); }}
+        onTaskUpdated={(t) =>
+          setTasks((all) => all.map((x) => (x.id === t.id ? t : x)))
+        }
+        onTaskDeleted={(tid) =>
+          setTasks((all) => all.filter((x) => x.id !== tid))
+        }
+        onEditFull={(t) => {
+          setEditingTask(t);
+          setTaskDialog(true);
+        }}
       />
 
       <TaskDialog
@@ -201,7 +417,10 @@ export default function ProjectDetail() {
         onSaved={load}
       />
 
-      <AlertDialog open={!!deletingTask} onOpenChange={(o) => !o && setDeletingTask(null)}>
+      <AlertDialog
+        open={!!deletingTask}
+        onOpenChange={(o) => !o && setDeletingTask(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete task</AlertDialogTitle>

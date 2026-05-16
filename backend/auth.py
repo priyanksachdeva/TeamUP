@@ -81,3 +81,13 @@ async def require_admin(user: dict = Depends(get_current_user)) -> dict:
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return user
+
+
+async def get_current_user_id(user: dict = Depends(get_current_user)) -> str:
+    """Dependency that returns just the user ID from the authenticated user."""
+    return user["id"]
+
+
+async def get_db(request: Request):
+    """Dependency that returns the database connection."""
+    return request.app.state.db

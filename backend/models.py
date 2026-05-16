@@ -48,6 +48,10 @@ class ProjectUpdate(BaseModel):
     members: Optional[List[str]] = None
 
 
+class MembersUpdate(BaseModel):
+    members: List[str] = Field(min_items=1)
+
+
 class ProjectOut(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
@@ -61,6 +65,23 @@ class ProjectOut(BaseModel):
 # ---------- Tasks ----------
 TaskStatus = Literal["todo", "in_progress", "done"]
 TaskPriority = Literal["low", "medium", "high"]
+
+
+class SubtaskCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    completed: Optional[bool] = False
+
+
+class SubtaskUpdate(BaseModel):
+    title: Optional[str] = None
+    completed: Optional[bool] = None
+
+
+class SubtaskOut(BaseModel):
+    id: str
+    title: str
+    completed: bool
+    created_at: datetime
 
 
 class TaskCreate(BaseModel):
@@ -86,6 +107,10 @@ class TaskStatusUpdate(BaseModel):
     status: TaskStatus
 
 
+class TaskReorder(BaseModel):
+    position: int = Field(ge=0)  # New position index in the column (0-based, >= 0)
+
+
 class TaskOut(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
@@ -96,6 +121,8 @@ class TaskOut(BaseModel):
     status: TaskStatus
     priority: TaskPriority
     due_date: Optional[datetime] = None
+    order: Optional[int] = None
+    subtasks: List[SubtaskOut] = []
     created_by: str
     created_at: datetime
     updated_at: datetime
@@ -113,4 +140,77 @@ class CommentOut(BaseModel):
     user_id: str
     user_name: str
     body: str
+    created_at: datetime
+
+
+# ---------- Webhooks ----------
+class WebhookType:
+    SLACK = "slack"
+    DISCORD = "discord"
+
+
+class WebhookCreate(BaseModel):
+    url: str = Field(min_length=10, max_length=2000)  # Webhook URL
+    type: Literal["slack", "discord"]
+    enabled: bool = True
+    events: List[Literal[
+        "task_created",
+        "task_updated",
+        "task_status_changed",
+        "task_assigned",
+        "subtask_created",
+        "project_activity"
+    ]] = Field(default_factory=lambda: ["task_created", "task_status_changed", "task_assigned"])
+
+
+class WebhookUpdate(BaseModel):
+    url: Optional[str] = None
+    type: Optional[Literal["slack", "discord"]] = None
+    enabled: Optional[bool] = None
+    events: Optional[List[Literal[
+        "task_created",
+        "task_updated",
+        "task_status_changed",
+        "task_assigned",
+        "subtask_created",
+        "project_activity"
+    ]]] = None
+
+
+class WebhookOut(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    project_id: str
+    type: Literal["slack", "discord"]
+    url: str
+    enabled: bool
+    events: List[str]
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class DiscordWebhookTest(BaseModel):
+    webhook_url: str = Field(min_length=10, max_length=2000)
+
+
+class WebhookOut(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    project_id: str
+    url: str
+    type: Literal["slack", "discord"]
+    enabled: bool
+    events: List[str]
+    created_by: str
+    created_at: datetime
+    last_triggered: Optional[datetime] = None
+
+
+# ---------- Email-to-Task ----------
+class EmailForwardingConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    project_id: str
+    email_address: str  # Generated: tasks-{project_id}@yourdomain.com
+    enabled: bool
     created_at: datetime

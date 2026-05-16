@@ -1,27 +1,62 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 import {
-  CheckCircle2, Clock, AlertTriangle, ListTodo, ArrowUpRight, TrendingUp, ChevronRight, Calendar,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ListTodo,
+  ArrowUpRight,
+  TrendingUp,
+  ChevronRight,
+  Calendar,
 } from "lucide-react";
 import api from "../services/api";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
 import { useAuth } from "../context/AuthContext";
-import { PRIORITY_STYLES, STATUS_LABEL, formatDate, isOverdue } from "../lib/taskHelpers";
+import {
+  PRIORITY_STYLES,
+  STATUS_LABEL,
+  formatDate,
+  isOverdue,
+} from "../lib/taskHelpers";
 
 const COLORS = ["hsl(240 12% 55%)", "hsl(199 100% 62%)", "hsl(244 76% 59%)"];
 
 /** Mini sparkline showing trend for stat card */
 function Sparkline({ data, color, fadeClass }) {
   return (
-    <div className={`relative h-12 w-full overflow-hidden rounded-md ${fadeClass}`}>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+    <div
+      className={`relative h-12 w-full min-w-0 overflow-hidden rounded-md ${fadeClass}`}
+    >
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={40}
+        minHeight={48}
+      >
+        <AreaChart
+          data={data}
+          margin={{ top: 4, right: 0, left: 0, bottom: 0 }}
+        >
           <Area
             type="monotone"
             dataKey="v"
@@ -36,7 +71,17 @@ function Sparkline({ data, color, fadeClass }) {
   );
 }
 
-function StatCard({ label, value, sub, icon: Icon, iconColor, sparkData, sparkColor, fadeClass, testId }) {
+function StatCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  iconColor,
+  sparkData,
+  sparkColor,
+  fadeClass,
+  testId,
+}) {
   return (
     <Card
       data-testid={testId}
@@ -45,11 +90,15 @@ function StatCard({ label, value, sub, icon: Icon, iconColor, sparkData, sparkCo
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-muted ${iconColor}`}>
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-full bg-muted ${iconColor}`}
+            >
               <Icon className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-sm font-medium text-muted-foreground">{label}</div>
+              <div className="text-sm font-medium text-muted-foreground">
+                {label}
+              </div>
               <div className="mt-0.5 font-display text-3xl font-bold tracking-tight tabular-nums">
                 {String(value).padStart(2, "0")}
               </div>
@@ -57,7 +106,11 @@ function StatCard({ label, value, sub, icon: Icon, iconColor, sparkData, sparkCo
           </div>
         </div>
         <div className="mt-4 grid grid-cols-[1fr_auto] items-end gap-3">
-          <Sparkline data={sparkData} color={sparkColor} fadeClass={fadeClass} />
+          <Sparkline
+            data={sparkData}
+            color={sparkColor}
+            fadeClass={fadeClass}
+          />
           {sub && (
             <div className="text-right text-[11px] leading-tight">
               <div className="font-semibold text-emerald-500">{sub.value}</div>
@@ -72,10 +125,46 @@ function StatCard({ label, value, sub, icon: Icon, iconColor, sparkData, sparkCo
 
 // Synthetic sparkline data – purely visual flair to match reference
 const SPARK = {
-  indigo: [{v:2},{v:3},{v:2.5},{v:4},{v:3.2},{v:5},{v:4.6},{v:6}],
-  cyan:   [{v:3},{v:2},{v:3.5},{v:3},{v:4},{v:3.5},{v:5},{v:6}],
-  rose:   [{v:5},{v:4.5},{v:5},{v:6},{v:5.5},{v:6.5},{v:6},{v:7}],
-  amber:  [{v:3},{v:4},{v:3.5},{v:5},{v:4.5},{v:5.5},{v:6},{v:6.5}],
+  indigo: [
+    { v: 2 },
+    { v: 3 },
+    { v: 2.5 },
+    { v: 4 },
+    { v: 3.2 },
+    { v: 5 },
+    { v: 4.6 },
+    { v: 6 },
+  ],
+  cyan: [
+    { v: 3 },
+    { v: 2 },
+    { v: 3.5 },
+    { v: 3 },
+    { v: 4 },
+    { v: 3.5 },
+    { v: 5 },
+    { v: 6 },
+  ],
+  rose: [
+    { v: 5 },
+    { v: 4.5 },
+    { v: 5 },
+    { v: 6 },
+    { v: 5.5 },
+    { v: 6.5 },
+    { v: 6 },
+    { v: 7 },
+  ],
+  amber: [
+    { v: 3 },
+    { v: 4 },
+    { v: 3.5 },
+    { v: 5 },
+    { v: 4.5 },
+    { v: 5.5 },
+    { v: 6 },
+    { v: 6.5 },
+  ],
 };
 
 export default function Dashboard() {
@@ -98,22 +187,33 @@ export default function Dashboard() {
           api.get("/projects"),
           api.get("/users"),
         ]);
-        setStats(s.data); setUpcoming(u.data); setRecent(r.data);
-        setProjects(p.data); setUsers(uu.data);
+        setStats(s.data);
+        setUpcoming(u.data);
+        setRecent(r.data);
+        setProjects(p.data);
+        setUsers(uu.data);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const userMap = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
-  const projectMap = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p])), [projects]);
+  const userMap = useMemo(
+    () => Object.fromEntries(users.map((u) => [u.id, u])),
+    [users],
+  );
+  const projectMap = useMemo(
+    () => Object.fromEntries(projects.map((p) => [p.id, p])),
+    [projects],
+  );
 
   if (loading || !stats) {
     return (
       <div className="space-y-6" data-testid="dashboard-loading">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[0,1,2,3].map((i) => <Skeleton key={i} className="h-36 w-full rounded-2xl" />)}
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-36 w-full rounded-2xl" />
+          ))}
         </div>
         <Skeleton className="h-96 w-full rounded-2xl" />
       </div>
@@ -150,7 +250,14 @@ export default function Dashboard() {
           sparkData={SPARK.indigo}
           sparkColor="hsl(244 76% 59%)"
           fadeClass="spark-fade-indigo"
-          sub={stats.total_tasks ? { value: `${Math.round((stats.completed_tasks/stats.total_tasks)*100)}%`, label: "from total" } : null}
+          sub={
+            stats.total_tasks
+              ? {
+                  value: `${Math.round((stats.completed_tasks / stats.total_tasks) * 100)}%`,
+                  label: "from total",
+                }
+              : null
+          }
           testId="stat-completed"
         />
         <StatCard
@@ -172,26 +279,34 @@ export default function Dashboard() {
           sparkData={SPARK.rose}
           sparkColor="hsl(348 90% 60%)"
           fadeClass="spark-fade-rose"
-          sub={stats.overdue_tasks > 0 ? { value: "Action", label: "needed" } : { value: "All", label: "clear" }}
+          sub={
+            stats.overdue_tasks > 0
+              ? { value: "Action", label: "needed" }
+              : { value: "All", label: "clear" }
+          }
           testId="stat-overdue"
         />
       </div>
 
       {/* Hidden testId for total (to satisfy any external test reference without taking visual space) */}
-      <span className="sr-only" data-testid="stat-total">{stats.total_tasks}</span>
+      <span className="sr-only" data-testid="stat-total">
+        {stats.total_tasks}
+      </span>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         <Card className="card-soft lg:col-span-3 rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-display text-lg">Task Done</CardTitle>
             <div className="flex items-center gap-1 rounded-full bg-muted p-1">
-              {["daily","weekly","monthly"].map((r) => (
+              {["daily", "weekly", "monthly"].map((r) => (
                 <button
                   key={r}
                   onClick={() => setRange(r)}
                   data-testid={`range-${r}`}
                   className={`rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors ${
-                    range === r ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    range === r
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {r}
@@ -201,20 +316,55 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.productivity} margin={{ top: 10, right: 16, left: -16, bottom: 0 }}>
+              <AreaChart
+                data={stats.productivity}
+                margin={{ top: 10, right: 16, left: -16, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="gradIndigo" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(244 76% 59%)" stopOpacity={0.35}/>
-                    <stop offset="100%" stopColor="hsl(244 76% 59%)" stopOpacity={0}/>
+                    <stop
+                      offset="0%"
+                      stopColor="hsl(244 76% 59%)"
+                      stopOpacity={0.35}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="hsl(244 76% 59%)"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                   <linearGradient id="gradCyan" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(199 100% 62%)" stopOpacity={0.30}/>
-                    <stop offset="100%" stopColor="hsl(199 100% 62%)" stopOpacity={0}/>
+                    <stop
+                      offset="0%"
+                      stopColor="hsl(199 100% 62%)"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="hsl(199 100% 62%)"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="hsl(var(--border))"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="day"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
                 <Tooltip
                   contentStyle={{
                     background: "hsl(var(--card))",
@@ -223,7 +373,13 @@ export default function Dashboard() {
                     fontSize: 12,
                   }}
                 />
-                <Area type="monotone" dataKey="completed" stroke="hsl(244 76% 59%)" strokeWidth={2.5} fill="url(#gradIndigo)" />
+                <Area
+                  type="monotone"
+                  dataKey="completed"
+                  stroke="hsl(244 76% 59%)"
+                  strokeWidth={2.5}
+                  fill="url(#gradIndigo)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -232,10 +388,13 @@ export default function Dashboard() {
         <Card className="card-soft lg:col-span-2 rounded-2xl">
           <CardHeader>
             <CardTitle className="flex items-center justify-between font-display text-lg">
-              <span className="inline-flex items-center gap-2">
-                Status mix
-              </span>
-              <Badge variant="outline" className="rounded-full font-mono text-[10px]">{stats.total_tasks} total</Badge>
+              <span className="inline-flex items-center gap-2">Status mix</span>
+              <Badge
+                variant="outline"
+                className="rounded-full font-mono text-[10px]"
+              >
+                {stats.total_tasks} total
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="h-64">
@@ -253,7 +412,9 @@ export default function Dashboard() {
                   stroke="hsl(var(--card))"
                   strokeWidth={3}
                 >
-                  {stats.status_breakdown.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                  {stats.status_breakdown.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
@@ -267,12 +428,20 @@ export default function Dashboard() {
             </ResponsiveContainer>
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               {stats.status_breakdown.map((s, i) => (
-                <div key={s.key} className="rounded-xl border border-border bg-background/40 p-2">
+                <div
+                  key={s.key}
+                  className="rounded-xl border border-border bg-background/40 p-2"
+                >
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: COLORS[i] }} />
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ background: COLORS[i] }}
+                    />
                     {s.name}
                   </div>
-                  <div className="mt-0.5 font-display text-base font-bold tabular-nums">{s.value}</div>
+                  <div className="mt-0.5 font-display text-base font-bold tabular-nums">
+                    {s.value}
+                  </div>
                 </div>
               ))}
             </div>
@@ -287,7 +456,12 @@ export default function Dashboard() {
               <Calendar className="h-4 w-4 text-primary" />
               Upcoming
             </CardTitle>
-            <Badge variant="outline" className="rounded-full font-mono text-[10px]">{upcoming.length}</Badge>
+            <Badge
+              variant="outline"
+              className="rounded-full font-mono text-[10px]"
+            >
+              {upcoming.length}
+            </Badge>
           </CardHeader>
           <CardContent className="space-y-2">
             {upcoming.length === 0 && (
@@ -302,13 +476,16 @@ export default function Dashboard() {
                 className="group flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3 transition-colors duration-200 hover:bg-accent"
                 data-testid={`upcoming-${t.id}`}
               >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${isOverdue(t) ? "bg-rose-500/15 text-rose-500" : "bg-primary/10 text-primary"}`}>
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full ${isOverdue(t) ? "bg-rose-500/15 text-rose-500" : "bg-primary/10 text-primary"}`}
+                >
                   <Clock className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{t.title}</div>
                   <div className="text-xs text-muted-foreground">
-                    {projectMap[t.project_id]?.title || "Project"} · {STATUS_LABEL[t.status]}
+                    {projectMap[t.project_id]?.title || "Project"} ·{" "}
+                    {STATUS_LABEL[t.status]}
                   </div>
                 </div>
                 <Badge
@@ -329,7 +506,12 @@ export default function Dashboard() {
               <TrendingUp className="h-4 w-4 text-primary" />
               Recent activity
             </CardTitle>
-            <Badge variant="outline" className="rounded-full font-mono text-[10px]">{recent.length}</Badge>
+            <Badge
+              variant="outline"
+              className="rounded-full font-mono text-[10px]"
+            >
+              {recent.length}
+            </Badge>
           </CardHeader>
           <CardContent className="space-y-2">
             {recent.length === 0 && (
@@ -344,15 +526,22 @@ export default function Dashboard() {
                 data-testid={`recent-${t.id}`}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground">
-                  {(userMap[t.assigned_to]?.name || "U").trim().charAt(0).toUpperCase()}
+                  {(userMap[t.assigned_to]?.name || "U")
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{t.title}</div>
                   <div className="text-xs text-muted-foreground">
-                    {userMap[t.assigned_to]?.name || "Unassigned"} · {projectMap[t.project_id]?.title || "Project"}
+                    {userMap[t.assigned_to]?.name || "Unassigned"} ·{" "}
+                    {projectMap[t.project_id]?.title || "Project"}
                   </div>
                 </div>
-                <Badge variant="outline" className={`${PRIORITY_STYLES[t.priority]} rounded-full font-mono text-[10px]`}>
+                <Badge
+                  variant="outline"
+                  className={`${PRIORITY_STYLES[t.priority]} rounded-full font-mono text-[10px]`}
+                >
                   {t.priority}
                 </Badge>
               </div>
@@ -364,16 +553,31 @@ export default function Dashboard() {
       {projects.length > 0 && (
         <Card className="card-soft rounded-2xl">
           <CardHeader>
-            <CardTitle className="font-display text-lg">Project progress</CardTitle>
+            <CardTitle className="font-display text-lg">
+              Project progress
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {projects.slice(0, 5).map((p) => {
-              const ratio = stats.total_tasks ? Math.min(100, (stats.completed_tasks / Math.max(1, stats.total_tasks)) * 100) : 0;
+              const ratio = stats.total_tasks
+                ? Math.min(
+                    100,
+                    (stats.completed_tasks / Math.max(1, stats.total_tasks)) *
+                      100,
+                  )
+                : 0;
               return (
                 <div key={p.id} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
-                    <Link to={`/projects/${p.id}`} className="font-medium hover:underline">{p.title}</Link>
-                    <span className="font-mono text-xs text-muted-foreground tabular-nums">{Math.round(ratio)}%</span>
+                    <Link
+                      to={`/projects/${p.id}`}
+                      className="font-medium hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                    <span className="font-mono text-xs text-muted-foreground tabular-nums">
+                      {Math.round(ratio)}%
+                    </span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div

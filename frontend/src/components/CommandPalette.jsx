@@ -1,11 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CommandDialog, CommandEmpty, CommandGroup, CommandInput,
-  CommandItem, CommandList, CommandSeparator, CommandShortcut,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
 } from "./ui/command";
 import {
-  LayoutDashboard, FolderKanban, Users, ListChecks, Moon, Sun, LogOut, FileText, Sparkles,
+  LayoutDashboard,
+  FolderKanban,
+  Users,
+  ListChecks,
+  Moon,
+  Sun,
+  LogOut,
+  FileText,
+  Sparkles,
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -33,18 +47,33 @@ export default function CommandPalette() {
   useEffect(() => {
     if (open && user) {
       Promise.all([api.get("/projects"), api.get("/tasks")])
-        .then(([p, t]) => { setProjects(p.data); setTasks(t.data); })
-        .catch(() => { /* silent */ });
+        .then(([p, t]) => {
+          setProjects(p.data);
+          setTasks(t.data);
+        })
+        .catch((err) => {
+          console.error("CommandPalette: Failed to fetch projects/tasks", err);
+        });
     }
   }, [open, user]);
 
-  const go = (path) => { setOpen(false); navigate(path); };
+  const go = (path) => {
+    setOpen(false);
+    navigate(path);
+  };
 
   if (!user) return null;
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search anything — projects, tasks, actions…" data-testid="command-input" />
+      <div className="sr-only" role="heading" aria-level="1">
+        Command Palette
+      </div>
+      <div className="sr-only">Search for projects, tasks, and actions</div>
+      <CommandInput
+        placeholder="Search anything — projects, tasks, actions…"
+        data-testid="command-input"
+      />
       <CommandList>
         <CommandEmpty>Nothing found.</CommandEmpty>
 
@@ -71,7 +100,11 @@ export default function CommandPalette() {
             <CommandSeparator />
             <CommandGroup heading="Projects">
               {projects.slice(0, 8).map((p) => (
-                <CommandItem key={p.id} value={`project ${p.title}`} onSelect={() => go(`/projects/${p.id}`)}>
+                <CommandItem
+                  key={p.id}
+                  value={`project ${p.title}`}
+                  onSelect={() => go(`/projects/${p.id}`)}
+                >
                   <Sparkles className="mr-2 h-4 w-4 text-primary" />
                   {p.title}
                 </CommandItem>
@@ -100,11 +133,25 @@ export default function CommandPalette() {
 
         <CommandSeparator />
         <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => { setOpen(false); toggle(); }}>
-            {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+          <CommandItem
+            onSelect={() => {
+              setOpen(false);
+              toggle();
+            }}
+          >
+            {theme === "dark" ? (
+              <Sun className="mr-2 h-4 w-4" />
+            ) : (
+              <Moon className="mr-2 h-4 w-4" />
+            )}
             Toggle theme
           </CommandItem>
-          <CommandItem onSelect={() => { setOpen(false); logout(); }}>
+          <CommandItem
+            onSelect={() => {
+              setOpen(false);
+              logout();
+            }}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Sign out
           </CommandItem>
         </CommandGroup>

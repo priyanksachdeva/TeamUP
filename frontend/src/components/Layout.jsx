@@ -1,14 +1,28 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  LayoutDashboard, FolderKanban, Users, LogOut, Moon, Sun, Bell, Search, Hexagon, ListChecks,
+  LayoutDashboard,
+  FolderKanban,
+  Users,
+  LogOut,
+  Moon,
+  Sun,
+  Bell,
+  Search,
+  Hexagon,
+  ListChecks,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import UserAvatar from "./UserAvatar";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,11 +43,11 @@ function SidebarLink({ to, label, icon: Icon }) {
               `flex h-11 w-11 items-center justify-center rounded-xl transition-colors duration-200 ${
                 isActive
                   ? "bg-primary text-primary-foreground shadow-[0_8px_20px_-6px_hsl(244_76%_59%/0.55)]"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  : "text-gray-900 dark:text-gray-300 hover:bg-accent"
               }`
             }
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5 text-gray-900 dark:text-gray-300" />
           </NavLink>
         </TooltipTrigger>
         <TooltipContent side="right">{label}</TooltipContent>
@@ -57,11 +71,15 @@ export default function Layout() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Hexagon className="h-6 w-6" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-[11px] font-bold tracking-[0.18em] text-foreground">OCTOM.</span>
+          <span className="font-display text-[11px] font-bold tracking-[0.18em] text-foreground">
+            TeamUP
+          </span>
         </div>
 
         <nav className="mt-10 flex flex-col items-center gap-2">
-          {NAV.map((n) => <SidebarLink key={n.to} {...n} />)}
+          {NAV.map((n) => (
+            <SidebarLink key={n.to} {...n} />
+          ))}
         </nav>
 
         <div className="mt-auto flex flex-col items-center gap-3">
@@ -71,9 +89,13 @@ export default function Layout() {
                 <button
                   onClick={toggle}
                   data-testid="theme-toggle"
-                  className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-accent hover:text-foreground"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-900 dark:text-gray-300 transition-colors duration-200 hover:bg-accent"
                 >
-                  {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {theme === "dark" ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">Toggle theme</TooltipContent>
@@ -85,7 +107,7 @@ export default function Layout() {
                 <button
                   onClick={logout}
                   data-testid="logout-button"
-                  className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-900 dark:text-gray-300 transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive"
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
@@ -109,7 +131,10 @@ export default function Layout() {
                 readOnly
                 placeholder="Search anything…"
                 onClick={() => {
-                  const ev = new KeyboardEvent("keydown", { key: "k", metaKey: true });
+                  const ev = new KeyboardEvent("keydown", {
+                    key: "k",
+                    metaKey: true,
+                  });
                   window.dispatchEvent(ev);
                 }}
                 className="h-11 cursor-pointer rounded-full border-border bg-card pl-11 pr-16 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-primary/30"
@@ -131,8 +156,12 @@ export default function Layout() {
             <div className="flex items-center gap-3 rounded-full border border-border bg-card py-1 pl-1 pr-3">
               <UserAvatar user={user} size="sm" />
               <div className="hidden sm:block leading-tight">
-                <div className="text-xs font-semibold">{user?.name?.split(" ")[0]}</div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{user?.role}</div>
+                <div className="text-xs font-semibold">
+                  {user?.name?.split(" ")[0]}
+                </div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {user?.role}
+                </div>
               </div>
             </div>
           </div>
@@ -146,7 +175,9 @@ export default function Layout() {
               to={to}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center gap-0.5 rounded-xl py-2 text-[11px] ${
-                  isActive ? "text-primary-foreground bg-primary" : "text-muted-foreground"
+                  isActive
+                    ? "text-primary-foreground bg-primary"
+                    : "text-muted-foreground"
                 }`
               }
             >

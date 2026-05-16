@@ -1,4 +1,5 @@
 """Team Task Manager - FastAPI entry point."""
+import asyncio
 import logging
 import os
 import uuid
@@ -20,11 +21,15 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from auth import hash_password, verify_password
 from routes_auth import router as auth_router
+from routes_oauth import router as oauth_router
 from routes_projects import router as projects_router
 from routes_tasks import router as tasks_router
 from routes_users import router as users_router
 from routes_dashboard import router as dashboard_router
 from routes_comments import router as comments_router
+from routes_webhooks import router as webhooks_router
+from routes_email import router as email_router
+from routes_discord import router as discord_router
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("server")
@@ -35,7 +40,10 @@ async def _ensure_indexes(db):
     await db.projects.create_index("created_by")
     await db.tasks.create_index("project_id")
     await db.tasks.create_index("assigned_to")
+    await db.tasks.create_index([("project_id", 1), ("status", 1), ("order", 1)], unique=True)
     await db.comments.create_index("task_id")
+    await db.webhooks.create_index("project_id")
+    await db.webhooks.create_index([("project_id", 1), ("enabled", 1)])
 
 
 async def _seed_user(db, *, email_env: str, password_env: str, default_email: str, default_password: str, name: str, role: str):
@@ -60,30 +68,44 @@ async def _seed_user(db, *, email_env: str, password_env: str, default_email: st
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mongo_url = os.environ["MONGO_URL"]
-    client = AsyncIOMotorClient(mongo_url)
-    db = client[os.environ["DB_NAME"]]
-    app.state.mongo_client = client
-    app.state.db = db
-    await _ensure_indexes(db)
-    await _seed_user(
-        db,
-        email_env="ADMIN_EMAIL",
-        password_env="ADMIN_PASSWORD",
-        default_email="admin@demo.com",
-        default_password="Admin@123",
-        name="Demo Admin",
-        role="admin",
-    )
-    await _seed_user(
-        db,
-        email_env="MEMBER_EMAIL",
-        password_env="MEMBER_PASSWORD",
-        default_email="member@demo.com",
-        default_password="Member@123",
-        name="Demo Member",
-        role="member",
-    )
-    logger.info("Startup complete.")
+    logger.info("Connecting to MongoDB...")
+    try:
+        client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
+        db = client[os.environ["DB_NAME"]]
+        app.state.mongo_client = client
+        app.state.db = db
+        
+        # Test the connection with a ping command
+        await asyncio.wait_for(db.command("ping"), timeout=5)
+        logger.info("MongoDB connection successful.")
+        
+        await _ensure_indexes(db)
+        await _seed_user(
+            db,
+            email_env="ADMIN_EMAIL",
+            password_env="ADMIN_PASSWORD",
+            default_email="admin@demo.com",
+            default_password="Admin@123",
+            name="Demo Admin",
+            role="admin",
+        )
+        await _seed_user(
+            db,
+            email_env="MEMBER_EMAIL",
+            password_env="MEMBER_PASSWORD",
+            default_email="member@demo.com",
+            default_password="Member@123",
+            name="Demo Member",
+            role="member",
+        )
+        logger.info("Startup complete.")
+    except asyncio.TimeoutError:
+        logger.error("MongoDB connection timed out. Is your IP whitelisted in MongoDB Atlas? Check .env MONGO_URL.")
+        raise
+    except Exception as e:
+        logger.error(f"MongoDB connection error: {e}")
+        raise
+    
     yield
     client.close()
 
@@ -104,11 +126,15 @@ async def health():
 
 
 api_router.include_router(auth_router)
+api_router.include_router(oauth_router)
 api_router.include_router(projects_router)
 api_router.include_router(tasks_router)
 api_router.include_router(users_router)
 api_router.include_router(dashboard_router)
 api_router.include_router(comments_router)
+api_router.include_router(webhooks_router)
+api_router.include_router(email_router)
+api_router.include_router(discord_router)
 
 app.include_router(api_router)
 

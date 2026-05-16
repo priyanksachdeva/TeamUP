@@ -29,7 +29,11 @@ export default function Signup() {
     }
     setLoading(true);
     try {
-      const u = await signup(form.name.trim(), form.email.trim(), form.password);
+      const u = await signup(
+        form.name.trim(),
+        form.email.trim(),
+        form.password,
+      );
       toast.success(`Welcome, ${u.name}`);
       navigate("/dashboard");
     } catch (err) {
@@ -41,7 +45,11 @@ export default function Signup() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-      <img src={BG_URL} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+      <img
+        src={BG_URL}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-60"
+      />
       <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
       <div className="absolute inset-0 auth-overlay" />
 
@@ -51,19 +59,27 @@ export default function Signup() {
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_24px_-6px_hsl(244_76%_59%/0.55)]">
               <Hexagon className="h-5 w-5" strokeWidth={2.5} />
             </div>
-            <span className="font-display text-2xl font-bold tracking-tight">OCTOM.</span>
+            <span className="font-display text-2xl font-bold tracking-tight">
+              TeamUP
+            </span>
           </div>
 
           <div className="rounded-3xl border border-white/20 bg-card/80 p-7 card-soft backdrop-blur-xl backdrop-saturate-150">
             <div className="mb-6">
               <div className="eyebrow mb-2">Get started</div>
-              <h1 className="font-display text-3xl font-semibold tracking-tight">Create your account</h1>
+              <h1 className="font-display text-3xl font-semibold tracking-tight">
+                Create your account
+              </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Spin up your team workspace in seconds.
               </p>
             </div>
 
-            <form onSubmit={submit} className="space-y-4" data-testid="signup-form">
+            <form
+              onSubmit={submit}
+              className="space-y-4"
+              data-testid="signup-form"
+            >
               <div className="space-y-1.5">
                 <Label htmlFor="name">Full name</Label>
                 <Input
@@ -113,7 +129,11 @@ export default function Signup() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-foreground underline-offset-4 hover:underline" data-testid="signup-login-link">
+              <Link
+                to="/login"
+                className="text-foreground underline-offset-4 hover:underline"
+                data-testid="signup-login-link"
+              >
                 Sign in
               </Link>
             </p>

@@ -47,7 +47,11 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-      <img src={BG_URL} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+      <img
+        src={BG_URL}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-60"
+      />
       <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
       <div className="absolute inset-0 auth-overlay" />
 
@@ -57,19 +61,27 @@ export default function Login() {
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_24px_-6px_hsl(244_76%_59%/0.55)]">
               <Hexagon className="h-5 w-5" strokeWidth={2.5} />
             </div>
-            <span className="font-display text-2xl font-bold tracking-tight">OCTOM.</span>
+            <span className="font-display text-2xl font-bold tracking-tight">
+              TeamUP
+            </span>
           </div>
 
           <div className="rounded-3xl border border-white/20 bg-card/80 p-7 card-soft backdrop-blur-xl backdrop-saturate-150">
             <div className="mb-6">
               <div className="eyebrow mb-2">Sign in</div>
-              <h1 className="font-display text-3xl font-semibold tracking-tight">Welcome back</h1>
+              <h1 className="font-display text-3xl font-semibold tracking-tight">
+                Welcome back
+              </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Continue to your workspace.
               </p>
             </div>
 
-            <form onSubmit={submit} className="space-y-4" data-testid="login-form">
+            <form
+              onSubmit={submit}
+              className="space-y-4"
+              data-testid="login-form"
+            >
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -102,7 +114,11 @@ export default function Login() {
                     className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
                     aria-label="Toggle password visibility"
                   >
-                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPwd ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -147,7 +163,11 @@ export default function Login() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               New here?{" "}
-              <Link to="/signup" className="text-foreground underline-offset-4 hover:underline" data-testid="login-signup-link">
+              <Link
+                to="/signup"
+                className="text-foreground underline-offset-4 hover:underline"
+                data-testid="login-signup-link"
+              >
                 Create an account
               </Link>
             </p>

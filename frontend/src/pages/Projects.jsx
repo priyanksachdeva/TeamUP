@@ -1,16 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, FolderKanban, MoreHorizontal, Pencil, Trash2, Search, Users as UsersIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Plus,
+  FolderKanban,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Search,
+  Users as UsersIcon,
+} from "lucide-react";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "../components/ui/alert-dialog";
 import { Skeleton } from "../components/ui/skeleton";
 import { toast } from "sonner";
@@ -18,9 +35,14 @@ import api, { formatApiError } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import UserAvatar from "../components/UserAvatar";
 import ProjectDialog from "../components/ProjectDialog";
+import {
+  EmptyState,
+  ProjectsEmptyIllustration,
+} from "../components/EmptyState";
 import { formatDate } from "../lib/taskHelpers";
 
 export default function Projects() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [projects, setProjects] = useState([]);
@@ -34,7 +56,10 @@ export default function Projects() {
   const load = async () => {
     setLoading(true);
     try {
-      const [p, u] = await Promise.all([api.get("/projects"), api.get("/users")]);
+      const [p, u] = await Promise.all([
+        api.get("/projects"),
+        api.get("/users"),
+      ]);
       setProjects(p.data);
       setUsers(u.data);
     } finally {
@@ -42,12 +67,17 @@ export default function Projects() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  const userMap = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
+  const userMap = useMemo(
+    () => Object.fromEntries(users.map((u) => [u.id, u])),
+    [users],
+  );
 
   const filtered = projects.filter((p) =>
-    `${p.title} ${p.description}`.toLowerCase().includes(query.toLowerCase())
+    `${p.title} ${p.description}`.toLowerCase().includes(query.toLowerCase()),
   );
 
   const confirmDelete = async () => {
@@ -66,7 +96,9 @@ export default function Projects() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="eyebrow">Workspace</div>
-          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Projects</h1>
+          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            Projects
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             All active workstreams in your team.
           </p>
@@ -84,7 +116,10 @@ export default function Projects() {
           </div>
           {isAdmin && (
             <Button
-              onClick={() => { setEditing(null); setDialogOpen(true); }}
+              onClick={() => {
+                setEditing(null);
+                setDialogOpen(true);
+              }}
               className="gap-1.5 rounded-full"
               data-testid="projects-new-button"
             >
@@ -96,23 +131,35 @@ export default function Projects() {
 
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[0, 1, 2].map((i) => <Skeleton key={i} className="h-44 w-full" />)}
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-44 w-full" />
+          ))}
         </div>
       ) : filtered.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-            <FolderKanban className="h-8 w-8 text-muted-foreground" />
-            <div className="font-display text-lg">No projects yet</div>
-            <p className="text-sm text-muted-foreground">
-              {isAdmin ? "Create your first project to start planning." : "You haven't been added to any projects yet."}
-            </p>
-            {isAdmin && (
-              <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="mt-2">
+        <EmptyState
+          type="projects"
+          title="No projects yet"
+          description={
+            isAdmin
+              ? "Create your first project to start planning."
+              : "You haven't been added to any projects yet."
+          }
+          actionButton={
+            isAdmin && (
+              <Button
+                onClick={() => {
+                  setEditing(null);
+                  setDialogOpen(true);
+                }}
+                className="mt-2"
+              >
                 <Plus className="mr-1.5 h-4 w-4" /> Create project
               </Button>
-            )}
-          </CardContent>
-        </Card>
+            )
+          }
+        >
+          <ProjectsEmptyIllustration />
+        </EmptyState>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
@@ -121,19 +168,16 @@ export default function Projects() {
               className="card-soft group cursor-pointer rounded-2xl transition-transform duration-200 hover:-translate-y-0.5"
               data-testid={`project-card-${p.id}`}
               onClick={(e) => {
-                if (e.target.closest('[data-no-card-nav]')) return;
-                window.location.href = `/projects/${p.id}`;
+                if (e.target.closest("[data-no-card-nav]")) return;
+                navigate(`/projects/${p.id}`);
               }}
             >
               <CardContent className="flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <Link
-                      to={`/projects/${p.id}`}
-                      className="block truncate font-display text-lg font-semibold tracking-tight hover:underline"
-                    >
+                    <div className="block truncate font-display text-lg font-semibold tracking-tight text-foreground hover:underline">
                       {p.title}
-                    </Link>
+                    </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                       {p.description || "No description."}
                     </p>
@@ -141,12 +185,28 @@ export default function Projects() {
                   {isAdmin && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" data-testid={`project-menu-${p.id}`} data-no-card-nav onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          data-testid={`project-menu-${p.id}`}
+                          data-no-card-nav
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" data-no-card-nav onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenuItem onClick={() => { setEditing(p); setDialogOpen(true); }}>
+                      <DropdownMenuContent
+                        align="end"
+                        data-no-card-nav
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditing(p);
+                            setDialogOpen(true);
+                          }}
+                        >
                           <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -165,7 +225,14 @@ export default function Projects() {
                   <div className="flex -space-x-2">
                     {(p.members || []).slice(0, 4).map((id) => {
                       const u = userMap[id];
-                      return u ? <UserAvatar key={id} user={u} size="xs" className="ring-2 ring-card" /> : null;
+                      return u ? (
+                        <UserAvatar
+                          key={id}
+                          user={u}
+                          size="xs"
+                          className="ring-2 ring-card"
+                        />
+                      ) : null;
                     })}
                     {(p.members || []).length > 4 && (
                       <div className="z-10 ml-1 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-[10px] text-muted-foreground">
@@ -196,12 +263,16 @@ export default function Projects() {
         onSaved={load}
       />
 
-      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+      <AlertDialog
+        open={!!deleting}
+        onOpenChange={(o) => !o && setDeleting(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete project</AlertDialogTitle>
             <AlertDialogDescription>
-              "{deleting?.title}" and all its tasks will be permanently removed. This cannot be undone.
+              "{deleting?.title}" and all its tasks will be permanently removed.
+              This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

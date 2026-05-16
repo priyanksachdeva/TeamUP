@@ -4,7 +4,7 @@ import uuid
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://task-manager-pro-84.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8000").rstrip("/")
 API = f"{BASE_URL}/api"
 
 ADMIN = {"email": "admin@demo.com", "password": "Admin@123"}
@@ -162,7 +162,16 @@ class TestTasks:
         )
         assert r.status_code == 200
         pid = r.json()["id"]
-        yield {"id": pid, "member_id": member_id}
+        # create an initial task so tests don't rely on ordering of test functions
+        tr = requests.post(
+            f"{API}/tasks",
+            headers=admin_h(admin_token),
+            json={"title": "TEST_task_init", "project_id": pid, "priority": "medium", "status": "todo"},
+            timeout=15,
+        )
+        assert tr.status_code == 200
+        tid = tr.json()["id"]
+        yield {"id": pid, "member_id": member_id, "task_id": tid}
         requests.delete(f"{API}/projects/{pid}", headers=admin_h(admin_token), timeout=15)
 
     def test_admin_create_task(self, admin_token, project):
@@ -337,6 +346,23 @@ class TestComments:
         )
         assert tr.status_code == 200
         tid = tr.json()["id"]
+        # create an admin comment and a member comment so downstream tests don't depend on test order
+        acr = requests.post(
+            f"{API}/tasks/{tid}/comments",
+            headers=admin_h(admin_token),
+            json={"body": "hello from admin"},
+            timeout=15,
+        )
+        assert acr.status_code == 200
+        admin_cid = acr.json()["id"]
+        mcr = requests.post(
+            f"{API}/tasks/{tid}/comments",
+            headers=admin_h(member_token),
+            json={"body": "hi from member"},
+            timeout=15,
+        )
+        assert mcr.status_code == 200
+        member_cid = mcr.json()["id"]
         # task in project 2 (member has NO access)
         tr2 = requests.post(
             f"{API}/tasks",
@@ -346,7 +372,7 @@ class TestComments:
         )
         assert tr2.status_code == 200
         tid_private = tr2.json()["id"]
-        yield {"pid": pid, "tid": tid, "tid_private": tid_private, "member_id": member_id}
+        yield {"pid": pid, "tid": tid, "tid_private": tid_private, "member_id": member_id, "admin_comment_id": admin_cid, "member_comment_id": member_cid}
         # cleanup
         requests.delete(f"{API}/projects/{pid}", headers=admin_h(admin_token), timeout=15)
         requests.delete(f"{API}/projects/{pid2}", headers=admin_h(admin_token), timeout=15)
@@ -412,8 +438,26 @@ class TestComments:
         assert "hi from member" in bodies
 
     def test_member_cannot_delete_admin_comment(self, member_token, task_ctx):
+        # Ensure the admin comment exists (tests may run in different orders)
+        comments = requests.get(f"{API}/tasks/{task_ctx['tid']}/comments", headers=admin_h(member_token), timeout=15).json()
+        admin_cid = task_ctx.get('admin_comment_id')
+        if not admin_cid or not any(c['id'] == admin_cid for c in comments):
+            # login as admin and recreate the admin comment
+            lr = requests.post(f"{API}/auth/login", json=ADMIN, timeout=15)
+            assert lr.status_code == 200
+            admin_token_local = lr.json().get('token')
+            acr = requests.post(
+                f"{API}/tasks/{task_ctx['tid']}/comments",
+                headers=admin_h(admin_token_local),
+                json={"body": "hello from admin (recreated)"},
+                timeout=15,
+            )
+            assert acr.status_code == 200
+            admin_cid = acr.json()['id']
+            task_ctx['admin_comment_id'] = admin_cid
+
         r = requests.delete(
-            f"{API}/comments/{task_ctx['admin_comment_id']}",
+            f"{API}/comments/{admin_cid}",
             headers=admin_h(member_token),
             timeout=15,
         )
