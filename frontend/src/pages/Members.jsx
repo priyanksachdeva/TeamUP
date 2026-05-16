@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { toast } from "sonner";
 import api, { formatApiError } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -25,7 +31,9 @@ export default function Members() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const setRole = async (u, role) => {
     try {
@@ -41,7 +49,9 @@ export default function Members() {
     <div className="space-y-6" data-testid="members-page">
       <div>
         <div className="eyebrow">Team</div>
-        <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Members</h1>
+        <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          Members
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           People with access to this workspace.
         </p>
@@ -49,7 +59,9 @@ export default function Members() {
 
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-full" />)}
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-28 w-full" />
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -63,7 +75,9 @@ export default function Members() {
                 <UserAvatar user={u} size="lg" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="truncate font-display text-base font-semibold">{u?.name || "Unknown"}</div>
+                    <div className="truncate font-display text-base font-semibold">
+                      {u?.name || "Unknown"}
+                    </div>
                     <Badge
                       variant="outline"
                       className={`font-mono text-[10px] ${
@@ -75,14 +89,19 @@ export default function Members() {
                       {u.role}
                     </Badge>
                   </div>
-                  <div className="truncate text-xs text-muted-foreground">{u.email}</div>
+                  <div className="truncate text-xs text-muted-foreground">
+                    {u.email}
+                  </div>
                   <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     Joined {formatDate(u.created_at)}
                   </div>
                 </div>
                 {isAdmin && user.id !== u.id && (
                   <Select value={u.role} onValueChange={(v) => setRole(u, v)}>
-                    <SelectTrigger className="h-8 w-28 text-xs" data-testid={`member-role-${u.id}`}>
+                    <SelectTrigger
+                      className="h-8 w-28 text-xs"
+                      data-testid={`member-role-${u.id}`}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

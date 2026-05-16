@@ -1,20 +1,49 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
-  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
 } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { Flag, CalendarDays, User as UserIcon, Send, Trash2, AlertCircle, Pencil } from "lucide-react";
+import {
+  Flag,
+  CalendarDays,
+  User as UserIcon,
+  Send,
+  Trash2,
+  AlertCircle,
+  Pencil,
+} from "lucide-react";
 import { toast } from "sonner";
 import api, { formatApiError } from "../services/api";
 import UserAvatar from "./UserAvatar";
-import { PRIORITY_STYLES, STATUS_LABEL, formatDate, isOverdue } from "../lib/taskHelpers";
+import {
+  PRIORITY_STYLES,
+  STATUS_LABEL,
+  formatDate,
+  isOverdue,
+} from "../lib/taskHelpers";
 
 const STATUS_DOT = {
   todo: "bg-zinc-400",
@@ -24,7 +53,10 @@ const STATUS_DOT = {
 
 function timeAgo(d) {
   if (!d) return "";
-  const seconds = Math.max(1, Math.floor((Date.now() - new Date(d).getTime()) / 1000));
+  const seconds = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(d).getTime()) / 1000),
+  );
   if (seconds < 60) return `${seconds}s ago`;
   const m = Math.floor(seconds / 60);
   if (m < 60) return `${m}m ago`;
@@ -36,8 +68,15 @@ function timeAgo(d) {
 }
 
 export default function TaskDetailDrawer({
-  open, onOpenChange, taskId, users, currentUser, isAdmin,
-  onTaskUpdated, onTaskDeleted, onEditFull,
+  open,
+  onOpenChange,
+  taskId,
+  users,
+  currentUser,
+  isAdmin,
+  onTaskUpdated,
+  onTaskDeleted,
+  onEditFull,
 }) {
   const [task, setTask] = useState(null);
   const [comments, setComments] = useState([]);
@@ -46,7 +85,10 @@ export default function TaskDetailDrawer({
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const userMap = useMemo(() => Object.fromEntries(users.map((u) => [u.id, u])), [users]);
+  const userMap = useMemo(
+    () => Object.fromEntries(users.map((u) => [u.id, u])),
+    [users],
+  );
 
   const load = useCallback(async () => {
     if (!taskId) return;
@@ -87,7 +129,9 @@ export default function TaskDetailDrawer({
       const { data } = await api.get(`/tasks`);
       const found = data.find((t) => t.id === taskId);
       if (found) setTask(found);
-    } catch (err) { /* ignore */ }
+    } catch (err) {
+      /* ignore */
+    }
   }, [taskId]);
 
   // Initial: if parent didn't include task in tasks endpoint, fetch from /tasks (no filter)
@@ -98,7 +142,9 @@ export default function TaskDetailDrawer({
   const setStatus = async (newStatus) => {
     if (!task) return;
     try {
-      const { data } = await api.patch(`/tasks/${task.id}/status`, { status: newStatus });
+      const { data } = await api.patch(`/tasks/${task.id}/status`, {
+        status: newStatus,
+      });
       setTask(data);
       toast.success(`Marked as ${STATUS_LABEL[newStatus]}`);
       onTaskUpdated?.(data);
@@ -110,7 +156,9 @@ export default function TaskDetailDrawer({
   const setAssignee = async (userId) => {
     if (!task || !isAdmin) return;
     try {
-      const { data } = await api.put(`/tasks/${task.id}`, { assigned_to: userId === "unassigned" ? null : userId });
+      const { data } = await api.put(`/tasks/${task.id}`, {
+        assigned_to: userId === "unassigned" ? null : userId,
+      });
       setTask(data);
       onTaskUpdated?.(data);
       toast.success("Assignee updated");
@@ -176,13 +224,17 @@ export default function TaskDetailDrawer({
         data-testid="task-drawer"
       >
         {!task && loading && (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading…</div>
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            Loading…
+          </div>
         )}
         {task && (
           <>
             <SheetHeader>
               <div className="flex items-center gap-2">
-                <span className={`inline-block h-2 w-2 rounded-full ${STATUS_DOT[task.status]}`} />
+                <span
+                  className={`inline-block h-2 w-2 rounded-full ${STATUS_DOT[task.status]}`}
+                />
                 <SheetDescription className="text-[10px] uppercase tracking-[0.18em] font-semibold">
                   {STATUS_LABEL[task.status]}
                 </SheetDescription>
@@ -191,7 +243,9 @@ export default function TaskDetailDrawer({
                 {task.title}
               </SheetTitle>
               {task.description && (
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{task.description}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {task.description}
+                </p>
               )}
             </SheetHeader>
 
@@ -210,7 +264,10 @@ export default function TaskDetailDrawer({
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Badge variant="outline" className={`${PRIORITY_STYLES[task.priority]} rounded-full font-mono text-[10px]`}>
+                  <Badge
+                    variant="outline"
+                    className={`${PRIORITY_STYLES[task.priority]} rounded-full font-mono text-[10px]`}
+                  >
                     <Flag className="mr-1 h-2.5 w-2.5" />
                     {task.priority}
                   </Badge>
@@ -219,28 +276,44 @@ export default function TaskDetailDrawer({
               <div className="rounded-xl border border-border bg-muted/40 p-3">
                 <div className="eyebrow mb-1.5">Due</div>
                 <div className="flex items-center gap-1.5 text-sm font-medium">
-                  {isOverdue(task) ? <AlertCircle className="h-3.5 w-3.5 text-rose-500" /> : <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />}
-                  <span className={isOverdue(task) ? "text-rose-500" : ""}>{formatDate(task.due_date)}</span>
+                  {isOverdue(task) ? (
+                    <AlertCircle className="h-3.5 w-3.5 text-rose-500" />
+                  ) : (
+                    <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                  <span className={isOverdue(task) ? "text-rose-500" : ""}>
+                    {formatDate(task.due_date)}
+                  </span>
                 </div>
               </div>
               <div className="col-span-2 rounded-xl border border-border bg-muted/40 p-3">
                 <div className="eyebrow mb-2">Assignee</div>
                 {isAdmin ? (
-                  <Select value={task.assigned_to || "unassigned"} onValueChange={setAssignee}>
-                    <SelectTrigger className="h-9 rounded-lg" data-testid="drawer-assignee-select">
+                  <Select
+                    value={task.assigned_to || "unassigned"}
+                    onValueChange={setAssignee}
+                  >
+                    <SelectTrigger
+                      className="h-9 rounded-lg"
+                      data-testid="drawer-assignee-select"
+                    >
                       <SelectValue placeholder="Unassigned" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="unassigned">Unassigned</SelectItem>
                       {(users || []).filter(Boolean).map((u) => (
-                        <SelectItem key={u.id} value={u.id}>{u?.name || "Unknown"}</SelectItem>
+                        <SelectItem key={u.id} value={u.id}>
+                          {u?.name || "Unknown"}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : task.assigned_to && userMap[task.assigned_to] ? (
                   <div className="flex items-center gap-2">
                     <UserAvatar user={userMap[task.assigned_to]} size="xs" />
-                    <span className="text-sm font-medium">{userMap[task.assigned_to]?.name || "Unknown"}</span>
+                    <span className="text-sm font-medium">
+                      {userMap[task.assigned_to]?.name || "Unknown"}
+                    </span>
                   </div>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -262,7 +335,9 @@ export default function TaskDetailDrawer({
                     data-testid={`drawer-status-${s}`}
                     className="rounded-full"
                   >
-                    <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${STATUS_DOT[s]}`} />
+                    <span
+                      className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${STATUS_DOT[s]}`}
+                    />
                     {STATUS_LABEL[s]}
                   </Button>
                 ))}
@@ -272,7 +347,12 @@ export default function TaskDetailDrawer({
             <div className="mt-8">
               <div className="mb-3 flex items-center justify-between">
                 <div className="font-display font-semibold">Comments</div>
-                <Badge variant="outline" className="rounded-full font-mono text-[10px]">{comments.length}</Badge>
+                <Badge
+                  variant="outline"
+                  className="rounded-full font-mono text-[10px]"
+                >
+                  {comments.length}
+                </Badge>
               </div>
 
               <div className="space-y-3" data-testid="comments-list">
@@ -284,11 +364,17 @@ export default function TaskDetailDrawer({
                 {comments.map((c) => {
                   const own = c.user_id === currentUser?.id;
                   return (
-                    <div key={c.id} className="rounded-xl border border-border bg-card p-3" data-testid={`comment-${c.id}`}>
+                    <div
+                      key={c.id}
+                      className="rounded-xl border border-border bg-card p-3"
+                      data-testid={`comment-${c.id}`}
+                    >
                       <div className="mb-1 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <UserAvatar user={{ name: c.user_name }} size="xs" />
-                          <span className="text-xs font-semibold">{c.user_name}</span>
+                          <span className="text-xs font-semibold">
+                            {c.user_name}
+                          </span>
                           <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                             {timeAgo(c.created_at)}
                           </span>
@@ -304,7 +390,9 @@ export default function TaskDetailDrawer({
                           </button>
                         )}
                       </div>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{c.body}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                        {c.body}
+                      </p>
                     </div>
                   );
                 })}
@@ -319,11 +407,14 @@ export default function TaskDetailDrawer({
                   className="rounded-xl"
                   data-testid="comment-input"
                   onKeyDown={(e) => {
-                    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submitComment(e);
+                    if ((e.metaKey || e.ctrlKey) && e.key === "Enter")
+                      submitComment(e);
                   }}
                 />
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">⌘ + Enter to send</span>
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    ⌘ + Enter to send
+                  </span>
                   <Button
                     type="submit"
                     disabled={!body.trim() || submitting}
@@ -343,7 +434,10 @@ export default function TaskDetailDrawer({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => { onOpenChange(false); onEditFull?.(task); }}
+                  onClick={() => {
+                    onOpenChange(false);
+                    onEditFull?.(task);
+                  }}
                   data-testid="drawer-edit-full"
                   className="rounded-full"
                 >
@@ -374,7 +468,11 @@ export default function TaskDetailDrawer({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-rose-600 hover:bg-rose-700" data-testid="drawer-delete-confirm">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-rose-600 hover:bg-rose-700"
+              data-testid="drawer-delete-confirm"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

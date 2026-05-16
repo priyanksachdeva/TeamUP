@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -12,7 +17,13 @@ import UserAvatar from "./UserAvatar";
 import { toast } from "sonner";
 import api, { formatApiError } from "../services/api";
 
-export default function ProjectDialog({ open, onOpenChange, project, users, onSaved }) {
+export default function ProjectDialog({
+  open,
+  onOpenChange,
+  project,
+  users,
+  onSaved,
+}) {
   const isEdit = Boolean(project);
   const [form, setForm] = useState({ title: "", description: "", members: [] });
   const [loading, setLoading] = useState(false);
@@ -30,7 +41,9 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
   const toggleMember = (id) => {
     setForm((f) => ({
       ...f,
-      members: f.members.includes(id) ? f.members.filter((m) => m !== id) : [...f.members, id],
+      members: f.members.includes(id)
+        ? f.members.filter((m) => m !== id)
+        : [...f.members, id],
     }));
   };
 
@@ -59,9 +72,13 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
       <DialogContent className="max-w-lg" data-testid="project-dialog">
         <form onSubmit={submit}>
           <DialogHeader>
-            <DialogTitle className="font-display">{isEdit ? "Edit project" : "New project"}</DialogTitle>
+            <DialogTitle className="font-display">
+              {isEdit ? "Edit project" : "New project"}
+            </DialogTitle>
             <DialogDescription>
-              {isEdit ? "Update project details and team." : "Spin up a workspace for your team."}
+              {isEdit
+                ? "Update project details and team."
+                : "Spin up a workspace for your team."}
             </DialogDescription>
           </DialogHeader>
 
@@ -82,7 +99,9 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
               <Textarea
                 id="description"
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="What is this project about?"
                 rows={3}
                 data-testid="project-description-input"
@@ -101,17 +120,26 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
                         onClick={() => toggleMember(u.id)}
                         data-testid={`project-member-${u.id}`}
                         className={`flex w-full items-center justify-between rounded-md border p-2 text-left transition-colors ${
-                          checked ? "border-primary/40 bg-primary/5" : "border-border hover:bg-accent"
+                          checked
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border hover:bg-accent"
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <UserAvatar user={u} size="xs" />
                           <div>
-                            <div className="text-sm">{u?.name || "Unknown"}</div>
-                            <div className="text-xs text-muted-foreground">{u?.email || ""}</div>
+                            <div className="text-sm">
+                              {u?.name || "Unknown"}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {u?.email || ""}
+                            </div>
                           </div>
                         </div>
-                        <Badge variant="outline" className="font-mono text-[10px]">
+                        <Badge
+                          variant="outline"
+                          className="font-mono text-[10px]"
+                        >
                           {u.role}
                         </Badge>
                       </button>
@@ -123,9 +151,23 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading} data-testid="project-submit-button">
-              {loading ? "Saving..." : isEdit ? "Save changes" : "Create project"}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              data-testid="project-submit-button"
+            >
+              {loading
+                ? "Saving..."
+                : isEdit
+                  ? "Save changes"
+                  : "Create project"}
             </Button>
           </DialogFooter>
         </form>
