@@ -1,12 +1,12 @@
-# TeamUp Team managing platform with webhook support
+## TeamUp 🚀 — Team managing platform with webhook support 🔔
 
 > Fast, delightful team task management with built-in webhook integrations — notify Slack or Discord when things matter.
 
-Quick links: `backend/` • `frontend/` • Deployment: `RAILWAY_DEPLOYMENT.md`
+Quick links: `backend/` • `frontend/` • Deployment: `RAILWAY_DEPLOYMENT.md` ✨
 
 ---
 
-## Hero — Webhooks First
+## Hero — Webhooks First 🔔
 
 TeamUp ships with first-class webhook support so you can trigger notifications, automations, and integrations the moment tasks change. Configure per-project webhooks (Slack/Discord/HTTP) for events like task completion, due-dates, and custom triggers — zero glue code required.
 
@@ -14,16 +14,16 @@ Buttons: [Get Started](#quick-start) • [Docs](#features) • [Deploy](#environ
 
 ---
 
-## Why TeamUp?
+## Why TeamUp? 💡
 
-- Built for teams: projects, roles, and lightweight RBAC out of the box
-- Integrations-first: native webhooks, email-to-task, and optional Discord alerts
-- Modern UX: fast Kanban, inline editing, analytics, dark mode
-- Production-ready: environment examples and Railway deployment guide included
+- 🧑‍🤝‍🧑 Built for teams: projects, roles, and lightweight RBAC out of the box
+- 🔗 Integrations-first: native webhooks, email-to-task, and optional Discord alerts
+- ✨ Modern UX: fast Kanban, inline editing, analytics, dark mode
+- 🚀 Production-ready: environment examples and Railway deployment guide included
 
 ---
 
-## Quick Start
+## Quick Start ⚡
 
 1. Backend
 
@@ -34,7 +34,7 @@ python -m venv .venv
 pip install -r requirements.txt
 # copy backend/.env.example -> backend/.env and fill values
 python run_uvicorn.py
-````
+```
 
 2. Frontend
 
@@ -49,19 +49,19 @@ npm run railway-start  # serve the build locally
 
 ---
 
-## Features (short)
+## Features (short) ✨
 
-- Authentication: JWT with secure password hashing
-- Projects & Tasks: create, assign, track, due-dates, priorities
-- Kanban board: drag & drop with smooth animations
-- Dashboard: productivity charts and status breakdowns
-- Webhooks (first-class): per-project HTTP hooks for Slack/Discord/any endpoint
-- Email-to-task: forward emails to auto-create tasks
-- Extensible: optional Redis for background jobs and webhooks queueing
+- 🔐 Authentication: JWT with secure password hashing
+- 📁 Projects & Tasks: create, assign, track, due-dates, priorities
+- 🧭 Kanban board: drag & drop with smooth animations
+- 📊 Dashboard: productivity charts and status breakdowns
+- 🔔 Webhooks (first-class): per-project HTTP hooks for Slack/Discord/any endpoint
+- ✉️ Email-to-task: forward emails to auto-create tasks
+- ♻️ Extensible: optional Redis for background jobs and webhooks queueing
 
 ---
 
-## Webhooks — spotlight
+## Webhooks — spotlight 📣
 
 Configure webhooks per project and pick events to watch (e.g., `task_completed`, `task_due_today`). Each trigger sends a payload to your endpoint; retries and fallback to a background queue are supported when Redis is enabled.
 
@@ -78,9 +78,9 @@ Payload example (POST JSON):
 
 Use cases:
 
-- Post a message to Slack or Discord when a milestone is reached
-- Trigger CI or deployment pipelines when tasks move to Done
-- Fire custom automations in Zapier/IFTTT or internal web services
+- 💬 Post a message to Slack or Discord when a milestone is reached
+- 🔁 Trigger CI or deployment pipelines when tasks move to Done
+- 🤖 Fire custom automations in Zapier/IFTTT or internal web services
 
 ---
 
