@@ -1,7 +1,14 @@
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API_BASE = `${BACKEND_URL}/api`;
+function normalizeBackendUrl(value) {
+  const raw = (value || "").trim().replace(/\/+$/, "");
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
+}
+
+const BACKEND_URL = normalizeBackendUrl(process.env.REACT_APP_BACKEND_URL);
+export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : "/api";
 
 const api = axios.create({
   baseURL: API_BASE,

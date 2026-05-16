@@ -30,7 +30,7 @@ export default function Members() {
   const setRole = async (u, role) => {
     try {
       await api.patch(`/users/${u.id}/role`, { role });
-      toast.success(`${u.name} is now ${role}`);
+      toast.success(`${u?.name || "Member"} is now ${role}`);
       load();
     } catch (err) {
       toast.error(formatApiError(err));
@@ -63,7 +63,7 @@ export default function Members() {
                 <UserAvatar user={u} size="lg" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="truncate font-display text-base font-semibold">{u.name}</div>
+                    <div className="truncate font-display text-base font-semibold">{u?.name || "Unknown"}</div>
                     <Badge
                       variant="outline"
                       className={`font-mono text-[10px] ${

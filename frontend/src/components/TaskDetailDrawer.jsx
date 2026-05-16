@@ -232,15 +232,15 @@ export default function TaskDetailDrawer({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="unassigned">Unassigned</SelectItem>
-                      {users.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                      {(users || []).filter(Boolean).map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u?.name || "Unknown"}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : task.assigned_to && userMap[task.assigned_to] ? (
                   <div className="flex items-center gap-2">
                     <UserAvatar user={userMap[task.assigned_to]} size="xs" />
-                    <span className="text-sm font-medium">{userMap[task.assigned_to].name}</span>
+                    <span className="text-sm font-medium">{userMap[task.assigned_to]?.name || "Unknown"}</span>
                   </div>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">

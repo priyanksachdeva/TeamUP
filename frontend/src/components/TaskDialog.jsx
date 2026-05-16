@@ -124,8 +124,8 @@ export default function TaskDialog({ open, onOpenChange, task, projectId, member
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {members.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                    {(members || []).filter(Boolean).map((m) => (
+                      <SelectItem key={m.id} value={m.id}>{m?.name || "Unknown"}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

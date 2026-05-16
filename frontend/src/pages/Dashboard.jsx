@@ -167,6 +167,10 @@ const SPARK = {
   ],
 };
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
@@ -188,10 +192,10 @@ export default function Dashboard() {
           api.get("/users"),
         ]);
         setStats(s.data);
-        setUpcoming(u.data);
-        setRecent(r.data);
-        setProjects(p.data);
-        setUsers(uu.data);
+        setUpcoming(asArray(u.data));
+        setRecent(asArray(r.data));
+        setProjects(asArray(p.data));
+        setUsers(asArray(uu.data));
       } finally {
         setLoading(false);
       }
@@ -199,11 +203,11 @@ export default function Dashboard() {
   }, []);
 
   const userMap = useMemo(
-    () => Object.fromEntries(users.map((u) => [u.id, u])),
+    () => Object.fromEntries(asArray(users).map((u) => [u.id, u])),
     [users],
   );
   const projectMap = useMemo(
-    () => Object.fromEntries(projects.map((p) => [p.id, p])),
+    () => Object.fromEntries(asArray(projects).map((p) => [p.id, p])),
     [projects],
   );
 
@@ -437,7 +441,7 @@ export default function Dashboard() {
                       className="inline-block h-2 w-2 rounded-full"
                       style={{ background: COLORS[i] }}
                     />
-                    {s.name}
+                    {s?.name || "Unknown"}
                   </div>
                   <div className="mt-0.5 font-display text-base font-bold tabular-nums">
                     {s.value}

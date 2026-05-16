@@ -92,7 +92,7 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
               <Label>Members</Label>
               <ScrollArea className="h-48 rounded-md border border-border p-2">
                 <div className="space-y-1">
-                  {users.map((u) => {
+                  {(users || []).filter(Boolean).map((u) => {
                     const checked = form.members.includes(u.id);
                     return (
                       <button
@@ -107,8 +107,8 @@ export default function ProjectDialog({ open, onOpenChange, project, users, onSa
                         <div className="flex items-center gap-2">
                           <UserAvatar user={u} size="xs" />
                           <div>
-                            <div className="text-sm">{u.name}</div>
-                            <div className="text-xs text-muted-foreground">{u.email}</div>
+                            <div className="text-sm">{u?.name || "Unknown"}</div>
+                            <div className="text-xs text-muted-foreground">{u?.email || ""}</div>
                           </div>
                         </div>
                         <Badge variant="outline" className="font-mono text-[10px]">

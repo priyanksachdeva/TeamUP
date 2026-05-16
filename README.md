@@ -52,6 +52,8 @@ Frontend env
 
 Copy `frontend/.env.example` to `frontend/.env` or set `REACT_APP_BACKEND_URL` in your environment.
 
+Important: `REACT_APP_BACKEND_URL` must be a full absolute URL in production, including `https://`. If you only set the host name, the browser will treat it as a relative path and login requests will hit the frontend domain instead of the backend.
+
 Security note
 
 Do NOT commit real secrets. I removed a committed `.env` containing secrets from the repo — if you previously pushed secrets, rotate those credentials now (MongoDB user, Resend API key, SMTP passwords).

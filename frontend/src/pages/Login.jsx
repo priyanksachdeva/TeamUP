@@ -26,7 +26,7 @@ export default function Login() {
     setLoading(true);
     try {
       const u = await login(email.trim(), password);
-      toast.success(`Welcome back, ${u.name}`);
+      toast.success(`Welcome back, ${u?.name || "there"}`);
       navigate("/dashboard");
     } catch (err) {
       toast.error(formatApiError(err));

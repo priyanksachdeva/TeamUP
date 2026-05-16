@@ -323,13 +323,13 @@ export default function ProjectDetail() {
             </span>
           )}
           <div className="flex flex-wrap gap-2">
-            {members.map((m) => (
+            {(members || []).filter(Boolean).map((m) => (
               <div
                 key={m.id}
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 py-1 pl-1 pr-3"
               >
                 <UserAvatar user={m} size="xs" />
-                <span className="text-xs">{m.name}</span>
+                <span className="text-xs">{m?.name || "Unknown"}</span>
                 <Badge variant="outline" className="font-mono text-[9px]">
                   {m.role}
                 </Badge>

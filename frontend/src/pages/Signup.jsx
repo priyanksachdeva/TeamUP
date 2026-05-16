@@ -34,7 +34,7 @@ export default function Signup() {
         form.email.trim(),
         form.password,
       );
-      toast.success(`Welcome, ${u.name}`);
+      toast.success(`Welcome, ${u?.name || "there"}`);
       navigate("/dashboard");
     } catch (err) {
       toast.error(formatApiError(err));
