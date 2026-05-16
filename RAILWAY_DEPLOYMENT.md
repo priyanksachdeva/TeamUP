@@ -321,7 +321,7 @@ Keep that value for the frontend build.
 2. Set the root directory to `frontend`
 3. Set the build command to `npm run build`
 4. Set the start command to `npm run railway-start`
-4. Set `REACT_APP_BACKEND_URL` to the backend URL from Step 4
+5. Set `REACT_APP_BACKEND_URL` to the backend URL from Step 4
 
 Rebuild after setting the variable.
 
