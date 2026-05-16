@@ -5,13 +5,14 @@ A full-stack team task management web app (FastAPI backend + React frontend).
 This repository contains the backend API (FastAPI) and frontend (React + CRACO/Tailwind).
 
 Quick links
+
 - Backend: `backend/`
 - Frontend: `frontend/`
 - Deployment guide: RAILWAY_DEPLOYMENT.md
 
 Getting started (local)
 
-1) Backend
+1. Backend
 
 Install and run (from `backend/`):
 
@@ -23,7 +24,7 @@ pip install -r requirements.txt
 python run_uvicorn.py
 ```
 
-2) Frontend
+2. Frontend
 
 Install and run (from `frontend/`):
 
