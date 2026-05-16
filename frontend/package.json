@@ -60,7 +60,7 @@
     "zod": "^3.24.4"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "NODE_NO_WARNINGS=1 craco start",
     "build": "craco build",
     "test": "craco test"
   },
