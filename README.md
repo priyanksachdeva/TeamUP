@@ -1,5 +1,3 @@
-**_ Begin Patch - replacing README with refreshed, webhook-first content _**
-
 # TeamUp Team managing platform with webhook support
 
 > Fast, delightful team task management with built-in webhook integrations — notify Slack or Discord when things matter.
