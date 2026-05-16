@@ -1,3 +1,70 @@
+# 🚀 TeamUp — Team managing platform with webhook support 🔔
+
+> Fast, delightful team task management with built-in webhook integrations — notify Slack or Discord when things matter.
+> 🔗 Quick links: `backend/` • `frontend/` • Deployment: `RAILWAY_DEPLOYMENT.md`
+
+---
+
+## ✨ Hero — Webhooks First
+
+TeamUp ships with first-class webhook support so you can trigger notifications, automations, and integrations the moment tasks change. Configure per-project webhooks (Slack/Discord/HTTP) for events like task completion, due-dates, and custom triggers — zero glue code required.
+Buttons: [🚀 Get Started](#quick-start) • [📚 Docs](#features) • [🚀 Deploy](#environment--deployment-backend)
+
+---
+
+## 💡 Why TeamUp?
+
+- Built for teams: projects, roles, and lightweight RBAC out of the box
+- Integrations-first: native webhooks, email-to-task, and optional Discord alerts
+- Modern UX: fast Kanban, inline editing, analytics, dark mode
+- Production-ready: environment examples and Railway deployment guide included
+
+## ⚡ Quick Start
+
+### 🧰 Backend
+
+1. Backend
+
+````powershell
+2) Frontend
+
+```powershell
+## ✨ Features (short)
+
+- Authentication: JWT with secure password hashing
+- Projects & Tasks: create, assign, track, due-dates, priorities
+- Kanban board: drag & drop with smooth animations
+- Dashboard: productivity charts and status breakdowns
+- Webhooks (first-class): per-project HTTP hooks for Slack/Discord/any endpoint
+- Email-to-task: forward emails to auto-create tasks
+- Extensible: optional Redis for background jobs and webhooks queueing
+## 🔔 Webhooks — Spotlight
+
+Configure webhooks per project and pick events to watch (e.g., `task_completed`, `task_due_today`). Each trigger sends a payload to your endpoint; retries and fallback to a background queue are supported when Redis is enabled.
+## 🛠️ Environment & Deployment (backend)
+
+Copy `backend/.env.example` -> `backend/.env` and set the required variables:
+- `MONGO_URL` — MongoDB URI
+- `DB_NAME` — default: `teamup`
+- `JWT_SECRET` — 32+ characters
+- `CORS_ORIGINS` — comma-separated list of allowed frontends (e.g., https://your-site.com)
+- `RESEND_API_KEY` or SMTP settings for email fallback
+- `REDIS_URL` — optional, recommended for webhook/queue reliability
+- `DISCORD_WEBHOOK_URL` — optional global webhook for system notifications
+Railway / Production notes:
+
+- Service root: set the backend root directory to `backend`
+- Build command: `pip install -r requirements.txt` (Railway will cache dependencies)
+- Start command: `uvicorn server:app --host 0.0.0.0 --port $PORT`
+## 🧪 Tests
+
+Run backend tests from `backend/`:
+## 🤝 Contributing
+
+1. Fork & branch
+## 📄 License
+
+MIT — see LICENSE file for details.
 **_ Begin Patch - replacing README with refreshed, webhook-first content _**
 
 # TeamUp Team managing platform with webhook support
@@ -36,7 +103,7 @@ python -m venv .venv
 pip install -r requirements.txt
 # copy backend/.env.example -> backend/.env and fill values
 python run_uvicorn.py
-```
+````
 
 2. Frontend
 
