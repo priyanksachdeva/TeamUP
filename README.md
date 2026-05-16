@@ -1,243 +1,142 @@
-# TeamUP — Team Task Manager
+**_ Begin Patch - replacing README with refreshed, webhook-first content _**
 
-A full-stack team task management web app (FastAPI backend + React frontend).
+# TeamUp Team managing platform with webhook support
 
-This repository contains the backend API (FastAPI) and frontend (React + CRACO/Tailwind).
+> Fast, delightful team task management with built-in webhook integrations — notify Slack or Discord when things matter.
 
-Quick links
+Quick links: `backend/` • `frontend/` • Deployment: `RAILWAY_DEPLOYMENT.md`
 
-- Backend: `backend/`
-- Frontend: `frontend/`
-- Deployment guide: RAILWAY_DEPLOYMENT.md
+---
 
-Getting started (local)
+## Hero — Webhooks First
+
+TeamUp ships with first-class webhook support so you can trigger notifications, automations, and integrations the moment tasks change. Configure per-project webhooks (Slack/Discord/HTTP) for events like task completion, due-dates, and custom triggers — zero glue code required.
+
+Buttons: [Get Started](#quick-start) • [Docs](#features) • [Deploy](#environment--deployment-backend)
+
+---
+
+## Why TeamUp?
+
+- Built for teams: projects, roles, and lightweight RBAC out of the box
+- Integrations-first: native webhooks, email-to-task, and optional Discord alerts
+- Modern UX: fast Kanban, inline editing, analytics, dark mode
+- Production-ready: environment examples and Railway deployment guide included
+
+---
+
+## Quick Start
 
 1. Backend
 
-Install and run (from `backend/`):
-
 ```powershell
+cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-# set required env vars (see below)
+# copy backend/.env.example -> backend/.env and fill values
 python run_uvicorn.py
 ```
 
 2. Frontend
 
-Install and run (from `frontend/`):
-
 ```powershell
+cd frontend
 npm install
-npm start
+npm run build      # production build
+npm run railway-start  # serve the build locally
 ```
 
-Production deploy note: on Railway the frontend must serve the built app, not `npm start`. Use `frontend` root, `npm run build`, and `npm run railway-start`.
+> Note: In production, serve the static `build/` folder rather than running the CRA dev server.
 
-Environment variables (backend)
+---
 
-Copy `backend/.env.example` to `backend/.env` and fill in real values. Key variables:
+## Features (short)
 
-- `MONGO_URL` — MongoDB connection URI
-- `DB_NAME` — Database name (default: `teamup`)
-- `JWT_SECRET` — Secret for JWT tokens (min 32 chars)
-- `CORS_ORIGINS` — Comma-separated frontend origins
-- `RESEND_API_KEY` or SMTP vars: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_USE_TLS`
-- `GOOGLE_CLIENT_ID` — for Google OAuth
-- `REDIS_URL` — optional, for background jobs
-- `DISCORD_WEBHOOK_URL` — optional notifications
+- Authentication: JWT with secure password hashing
+- Projects & Tasks: create, assign, track, due-dates, priorities
+- Kanban board: drag & drop with smooth animations
+- Dashboard: productivity charts and status breakdowns
+- Webhooks (first-class): per-project HTTP hooks for Slack/Discord/any endpoint
+- Email-to-task: forward emails to auto-create tasks
+- Extensible: optional Redis for background jobs and webhooks queueing
 
-Frontend env
+---
 
-Copy `frontend/.env.example` to `frontend/.env` or set `REACT_APP_BACKEND_URL` in your environment.
+## Webhooks — spotlight
 
-Important: `REACT_APP_BACKEND_URL` must be a full absolute URL in production, including `https://`. If you only set the host name, the browser will treat it as a relative path and login requests will hit the frontend domain instead of the backend.
+Configure webhooks per project and pick events to watch (e.g., `task_completed`, `task_due_today`). Each trigger sends a payload to your endpoint; retries and fallback to a background queue are supported when Redis is enabled.
 
-Security note
+Payload example (POST JSON):
 
-Do NOT commit real secrets. I removed a committed `.env` containing secrets from the repo — if you previously pushed secrets, rotate those credentials now (MongoDB user, Resend API key, SMTP passwords).
+```json
+{
+  "event": "task_completed",
+  "project_id": "proj_123",
+  "task": { "id": "t_456", "title": "Write spec", "status": "done" },
+  "timestamp": "2026-05-16T12:00:00Z"
+}
+```
 
-Tests
+Use cases:
+
+- Post a message to Slack or Discord when a milestone is reached
+- Trigger CI or deployment pipelines when tasks move to Done
+- Fire custom automations in Zapier/IFTTT or internal web services
+
+---
+
+## Environment & Deployment (backend)
+
+Copy `backend/.env.example` -> `backend/.env` and set the required variables:
+
+- `MONGO_URL` — MongoDB URI
+- `DB_NAME` — default: `teamup`
+- `JWT_SECRET` — 32+ characters
+- `CORS_ORIGINS` — comma-separated list of allowed frontends (e.g., https://your-site.com)
+- `RESEND_API_KEY` or SMTP settings for email fallback
+- `REDIS_URL` — optional, recommended for webhook/queue reliability
+- `DISCORD_WEBHOOK_URL` — optional global webhook for system notifications
+
+Railway / Production notes:
+
+- Service root: set the backend root directory to `backend`
+- Build command: `pip install -r requirements.txt` (Railway will cache dependencies)
+- Start command: `uvicorn server:app --host 0.0.0.0 --port $PORT`
+
+---
+
+## Tests
 
 Run backend tests from `backend/`:
 
 ```powershell
-$env:REACT_APP_BACKEND_URL='http://127.0.0.1:8001'
+cd backend
 python -m pytest -q
 ```
 
-Deployment
+---
 
-See the Railway deployment guide: RAILWAY_DEPLOYMENT.md
+## Contributing
 
-Cleaning notes
-
-Removed archival review and test-result files to simplify repository. If you need those artifacts, check your local backups or commit history.
-
-Contributing
-
-Open a PR for changes; run tests before submitting.
-
-Questions
-
-If you want, I can: deploy to Railway for you, add CI, or run a RBAC audit.
-
-# TeamUP — Enterprise Task & Project Manager
-
-<div align="center">
-
-**Production-ready full-stack task management platform** with role-based access control, real-time Kanban board, advanced webhooks, email-to-task integration, and comprehensive analytics dashboard.
-
-[🎬 View Demo](#demo) • [🏗️ Architecture](#architecture) • [📚 Setup Guide](#setup) • [🚀 Features](#features)
-
-</div>
+1. Fork & branch
+2. Run tests and linting
+3. Open a PR with a clear description and screenshots
 
 ---
 
-## 🎬 Demo
+## Support
 
-**Main Features in Action:**
-
-- 📋 Kanban board with drag-and-drop task management
-- 📧 Email-to-task forwarding with priority parsing
-- 🔔 Slack/Discord webhook notifications
-- 📊 Real-time dashboard analytics
-- ✨ Inline task editing with confetti celebrations
-- 🌓 Dark/light mode with smooth transitions
-
-> Demo GIF coming soon! For now, see [Screenshots](#screenshots) section below.
+If you want help deploying the app, configuring webhooks, or adding custom integrations, open an issue or DM me — I can assist with Railway setup, CI, or security review.
 
 ---
 
-## 📸 Screenshots
+## License
 
-### Dashboard & Analytics
+MIT — see LICENSE file for details.
 
-<table>
-<tr>
-<td align="center"><b>Dashboard Overview</b><br/>Real-time stats, productivity charts, upcoming tasks</td>
-<td align="center"><b>Project Statistics</b><br/>Status distribution, team member activity</td>
-</tr>
-</table>
+**_ End Patch _**
 
-### Kanban Board
-
-<table>
-<tr>
-<td align="center"><b>Drag-and-Drop Board</b><br/>Todo → In Progress → Done with visual feedback</td>
-<td align="center"><b>Inline Task Editing</b><br/>Click to edit, press Enter/Escape to save/cancel</td>
-</tr>
-</table>
-
-### Team & Projects
-
-<table>
-<tr>
-<td align="center"><b>Projects List</b><br/>Create, edit, delete projects with team members</td>
-<td align="center"><b>Team Members</b><br/>Role-based access (Admin/Member)</td>
-</tr>
-</table>
-
-### Authentication
-
-<table>
-<tr>
-<td align="center"><b>Login</b><br/>JWT-based secure authentication</td>
-<td align="center"><b>Signup</b><br/>Create new member accounts</td>
-</tr>
-</table>
-
----
-
-## 🏗️ Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Frontend (React 19)                      │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │ Pages: Dashboard, Projects, Tasks, Members, MyTasks      │ │
-│  │ Components: Kanban, Dialog, TaskDetail, CommandPalette   │ │
-│  │ Features: Auth Context, Theme, Toast, Drag-Drop         │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ HTTP/REST
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-┌───────▼──────────┐  ┌────▼────────┐  ┌────▼─────────┐
-│  FastAPI Backend │  │   MongoDB   │  │  SendGrid /  │
-│  ┌────────────┐  │  │ (Database)  │  │  Slack/      │
-│  │ API Routes │  │  │             │  │  Discord     │
-│  ├────────────┤  │  └─────────────┘  │  Webhooks    │
-│  │ Auth       │  │                    └──────────────┘
-│  │ Projects   │  │
-│  │ Tasks      │  │
-│  │ Webhooks   │  │
-│  │ Email      │  │
-│  └────────────┘  │
-└──────────────────┘
-```
-
-### Data Model
-
-```
-User
-├── id (ObjectId)
-├── email (unique)
-├── name
-├── role (admin | member)
-└── password_hash
-
-Project
-├── id
-├── title
-├── description
-├── owner_id (User)
-├── members ([User.id])
-├── created_at
-└── updated_at
-
-Task
-├── id
-├── project_id
-├── title
-├── description
-├── status (todo | in_progress | done)
-├── priority (low | medium | high)
-├── assigned_to (User.id)
-├── due_date
-├── email_source (if created from email)
-└── created_at
-
-Webhook
-├── id
-├── project_id
-├── url
-├── type (slack | discord)
-├── enabled
-├── events ([task_completed | task_due_today])
-└── last_triggered
-```
-
----
-
-## 🎯 Features
-
-### Core Functionality ✅
-
-- **🔐 Authentication** — JWT-based with bcrypt password hashing, persistent sessions
-- **👥 Role-Based Access** — Admin (full control) vs Member (limited to assigned projects)
-- **📁 Project Management** — Create, edit, delete projects with team members
-- **✅ Task Management** — Full CRUD with priority, status, due date, assignee tracking
-- **🎯 Kanban Board** — Drag-and-drop tasks between Todo/In Progress/Done columns
-- **📊 Dashboard** — Real-time analytics, productivity charts, team activity feed
-
-### Advanced Features 🚀
-
-- **📧 Email-to-Task** — Forward emails to project address, auto-creates tasks with priority extraction
-- **🔔 Slack/Discord Webhooks** — Real-time notifications on task completion or due dates
 - **✨ Inline Task Editing** — Click to edit, press Enter to save or Escape to cancel
 - **🎉 Confetti Celebrations** — Visual feedback when tasks move to Done status
 - **🌓 Dark/Light Mode** — Persistent theme preference with smooth transitions
